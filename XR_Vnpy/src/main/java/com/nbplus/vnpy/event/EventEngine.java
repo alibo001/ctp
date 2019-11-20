@@ -1,11 +1,18 @@
 package com.nbplus.vnpy.event;
 
+import com.nbplus.vnpy.method.Method;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @Description  事件引擎
+ * @Description 事件引擎
  * @Author gongtan
  * @Date 2019/11/20 15:15
  * @Version 1.0
@@ -32,22 +39,60 @@ public class EventEngine {
     private int timerSleep;
 
     //这里的__handlers是一个字典，用来保存对应的事件调用关系
-    //private Map<String, List<Method>> __handlers;
+    private Map<String, List<Method>> handlers;
 
     //__generalHandlers是一个列表，用来保存通用回调函数（所有事件均调用）
-    //private List<Method> __generalHandlers;
+    private List<Method> generalHandlers;
+
+
+
+
+    // 初始化事件引擎
+    public EventEngine() {
+        // 事件队列
+        this.queue = new LinkedBlockingQueue<Event>();
+
+        // 事件引擎开关
+        this.active = false;
+
+        // 事件处理线程
+        this.thread = new Thread() {
+            @Override
+            public void run() {
+                engineRun();
+            }
+        };
+
+        // 计时器，用于触发计时器事件
+        this.timer = new Thread() {
+            @Override
+            public void run() {
+                runTimer();
+            }
+        };
+        this.timerActive = false; // 计时器工作状态
+        this.timerSleep = 1000; // 计时器触发间隔（默认1秒）
+
+        // 这里的__handlers是一个字典，用来保存对应的事件调用关系
+        // 其中每个键对应的值是一个列表，列表中保存了对该事件进行监听的函数功能
+        this.handlers = new ConcurrentHashMap<String, List<Method>>();
+
+        // __generalHandlers是一个列表，用来保存通用回调函数（所有事件均调用）
+        this.generalHandlers = new CopyOnWriteArrayList<Method>();
+    }
+
 
 
     /**
+     * @param
+     * @return void
      * @Description 定时器事件 Timer事件的生成  此处为开辟的一个线程 与其他线程互不干扰 结束线程时，调用join方法 处理完再结束
      * @author gt_vv
      * @date 2019/11/20
-     * @param
-     * @return void
      */
-    private void runTimer(){
+    private void runTimer() {
         //判断引擎是否开启
-        while(this.active) {
+        while (this.active) {
             //开启后生成 Timer事件并放入事件队列中等待被处理
             Event event = new Event(EventType.EVENT_TIMER);  //event 目前代表一个 Timer事件
             //放入对列中 等待事件的处理
@@ -63,26 +108,26 @@ public class EventEngine {
     }
 
     /**
+     * @param event
+     * @return void
      * @Description 向事件队列中存入事件
      * @author gt_vv
      * @date 2019/11/20
-     * @param event
-     * @return void
      */
     public void put(Event event) {
         this.queue.offer(event);
     }
 
     /**
+     * @param
+     * @return void
      * @Description 引擎运行线程   与事件生成线程互不干涉  结束时候调用 join 方法 执行完线程 再结束
      * @author gt_vv
      * @date 2019/11/20
-     * @param
-     * @return void
      */
-    private  synchronized void engineRun(){
+    private synchronized void engineRun() {
         //判断 引擎是否被开启
-        while(this.active){
+        while (this.active) {
             try {
                 //向队列索求  弹出一个事件（有序）
                 Event event = this.queue.poll(1000, TimeUnit.MILLISECONDS);
@@ -90,7 +135,7 @@ public class EventEngine {
                     //事件为空 跳出本次循环 ，有事件 则进入事件处理方法
                     continue;
                 }
-                //this.process(event);
+                this.process(event);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -98,28 +143,99 @@ public class EventEngine {
     }
 
     /**
-     * @Description  事件处理 主方法
-     * @author gt_vv
-     * @date 2019/11/20
      * @param event
      * @return void
+     * @Description 事件处理 主方法
+     * @author gt_vv
+     * @date 2019/11/20
      */
-/*    private void process(Event event) {
+    private void process(Event event) {
         // 检查是否存在对该事件进行监听的处理函数
-        if (this.__handlers.containsKey(event.getType_())) {
+        if (this.handlers.containsKey(event.getEventType())) {
             // 若存在，则按顺序将事件传递给处理函数执行
-            for (Method handler : this.__handlers.get(event.getType_())) {
+            for (Method handler : this.handlers.get(event.getEventType())) {
                 //执行 回调函数
                 handler.invoke(event);
             }
         }
 
         // 调用通用处理函数进行处理
-        if (this.__generalHandlers != null) {
-            for (Method handler : this.__generalHandlers) {
+        if (this.generalHandlers != null) {
+            for (Method handler : this.generalHandlers) {
                 handler.invoke(event);
             }
         }
-    }*/
+    }
 
+
+    public void start() {
+        start(true);
+    }
+
+
+    /**
+     * 引擎启动
+     *
+     * @param timer
+     */
+    public void start(boolean timer) {
+        // 将引擎设为启动
+        this.active = true;
+
+        // 启动事件处理线程
+        this.thread.start();
+
+        // 启动计时器，计时器事件间隔默认设定为1秒
+        if (timer) {
+            this.timerActive = true;
+            this.timer.start();
+        }
+    }
+
+
+    /**
+     * 引擎停止调用stop方法   设置引擎参数 并且 在线程运行完后停止进程
+     */
+    public void stop() {
+        // 将引擎设为停止
+        this.active = false;
+
+        // 停止计时器
+        this.timerActive = false;
+        try {
+            this.timer.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // 等待事件处理线程退出
+        try {
+            this.thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    /**
+     * 测试引擎
+     * @param args
+     */
+    public static void main(String[] args) {
+        Event event = new Event(EventType.EVENT_TIMER);
+        EventEngine eventEngine = new EventEngine();
+        Method method = new Method(eventEngine,"simpletest",Event.class);
+        //eventEngine.registerGeneralHandler(simpletest);
+        List<Method> list = new ArrayList<>();
+        list.add(method);
+        eventEngine.handlers.put("eTimer",list);
+        eventEngine.start(true);
+        //method.invoke(event);
+    }
+
+    //计时器通用处理方法
+    public void simpletest(Event event) {
+        System.out.println("处理每秒触发的计时器事件：" + LocalDateTime.now());
+    }
 }
