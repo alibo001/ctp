@@ -5,10 +5,19 @@ import java.lang.reflect.InvocationTargetException;
 public class Method {
 	private Object instance;
 	private java.lang.reflect.Method method;
-	
+	/**
+	 * @Description
+	 * @author gt_vv
+	 * @date 2019/11/20
+	 * @param clazz  class字节码文件
+	 * @param methodName   字节码中的方法名
+	 * @param parameterTypes  执行 名字为methodName方法的参数
+	 * @return
+	 */
 	public Method(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
 		try {
 			//this.method = instance.getClass().getMethod(methodName, parameterTypes);
+			//name -- 方法的名称     parameterTypes -- 参数数组   根据 clazz字节码 文件  方法名  参数数组  返回一个对应的Method
 			this.method = clazz.getDeclaredMethod(methodName, parameterTypes);
 			this.method.setAccessible(true);
 		} catch (NoSuchMethodException | SecurityException e) {
