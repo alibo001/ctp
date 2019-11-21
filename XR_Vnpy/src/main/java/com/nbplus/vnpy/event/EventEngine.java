@@ -135,6 +135,7 @@ public class EventEngine {
                     //事件为空 跳出本次循环 ，有事件 则进入事件处理方法
                     continue;
                 }
+                //处理事件
                 this.process(event);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -152,7 +153,7 @@ public class EventEngine {
     private void process(Event event) {
         // 检查是否存在对该事件进行监听的处理函数
         if (this.handlers.containsKey(event.getEventType())) {
-            // 若存在，则按顺序将事件传递给处理函数执行
+            // 若存在，则按顺序将事件传递给处理函数执行  handlers  map 集合
             for (Method handler : this.handlers.get(event.getEventType())) {
                 //执行 回调函数
                 handler.invoke(event);
@@ -224,12 +225,22 @@ public class EventEngine {
      */
     public static void main(String[] args) {
         Event event = new Event(EventType.EVENT_TIMER);
+
         EventEngine eventEngine = new EventEngine();
         Method method = new Method(eventEngine,"simpletest",Event.class);
+        //Method method1 = new Method(eventEngine,"log",Event.class);
+        Method method3 = new Method(eventEngine,"test",Event.class);
+
+
         //eventEngine.registerGeneralHandler(simpletest);
         List<Method> list = new ArrayList<>();
+        List<Method> list1 = new ArrayList<>();
         list.add(method);
+        list.add(method3);
         eventEngine.handlers.put("eTimer",list);
+
+
+        //eventEngine.handlers.put("eLog",list1);
         eventEngine.start(true);
         //method.invoke(event);
     }
@@ -238,4 +249,14 @@ public class EventEngine {
     public void simpletest(Event event) {
         System.out.println("处理每秒触发的计时器事件：" + LocalDateTime.now());
     }
+    public void test(Event event) {
+        System.out.println("测试");
+    }
+
+    //计时器通用处理方法
+    public void log(Event event) {
+        System.out.println("处理log事件：" + LocalDateTime.now());
+    }
+
+
 }
