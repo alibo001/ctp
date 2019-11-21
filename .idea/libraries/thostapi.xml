@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="thostapi">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/XR_Vnpy/lib/thostapi.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
