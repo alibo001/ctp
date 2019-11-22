@@ -9,6 +9,7 @@ package com.nbplus.vnpy.event;
 public class EventType {
     // 计时器事件
     public static final String EVENT_TIMER = "eTimer";
+    public static final String EVENT_LOG = "eLog"; // 日志事件，全局通用
 
 
     // Gateway接口 事件类型定义：
