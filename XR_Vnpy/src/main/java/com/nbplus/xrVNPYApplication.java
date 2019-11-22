@@ -1,5 +1,6 @@
 package com.nbplus;
 
+import ctp.thostmduserapi.CThostFtdcMdApi;
 import ctp.thosttraderapi.CThostFtdcTraderApi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -31,6 +32,9 @@ public class xrVNPYApplication {
         System.loadLibrary("thosttraderapi_se");
         System.loadLibrary("thosttraderapi_wrap");
 
+        System.out.println(System.getProperty("java.library.path"));
+        System.loadLibrary("thostmduserapi_se");
+        System.loadLibrary("thostmduserapi_wrap");
     }
 
     /**
@@ -43,5 +47,11 @@ public class xrVNPYApplication {
     @Bean
     public CThostFtdcTraderApi traderApi() {
         return CThostFtdcTraderApi.CreateFtdcTraderApi();
+    }
+
+    @Bean
+    public CThostFtdcMdApi mduserApi() {
+        return CThostFtdcMdApi.CreateFtdcMdApi();
+
     }
 }
