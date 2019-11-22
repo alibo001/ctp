@@ -15,6 +15,8 @@ public class CTPLogin {
     private String authCode;
     private String userProductInfo;
 
+
+
     public String getUserID() {
         return userID;
     }
