@@ -8,60 +8,85 @@ package com.nbplus.vnpy.domain;
  **/
 public class CTPLogin {
 
-    private String userID; // 账号
-    private String password; // 密码
-    private String brokerID; // 经纪商代码
-    private String address; // 服务器地址
-    private String authCode;
-    private String userProductInfo;
+    private String m_BrokerId; //= "9999";
+    private String m_UserId ;//= "110208";
+    private String m_PassWord;// = "thorp";
+    private String m_InvestorId;// = "110208";
+    private String m_TradingDay;// = "20191123";
+    private String m_AccountId ;//= "110208";
+    private String m_CurrencyId;// = "CNY";
+    private String m_AppId; //= "simnow_client_test";
+    private String m_AuthCode;// = "0000000000000000";
 
-
-
-    public String getUserID() {
-        return userID;
+    public String getM_BrokerId() {
+        return m_BrokerId;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void setM_BrokerId(String m_BrokerId) {
+        this.m_BrokerId = m_BrokerId;
     }
 
-    public String getPassword() {
-        return password;
+    public String getM_UserId() {
+        return m_UserId;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setM_UserId(String m_UserId) {
+        this.m_UserId = m_UserId;
     }
 
-    public String getBrokerID() {
-        return brokerID;
+    public String getM_PassWord() {
+        return m_PassWord;
     }
 
-    public void setBrokerID(String brokerID) {
-        this.brokerID = brokerID;
+    public void setM_PassWord(String m_PassWord) {
+        this.m_PassWord = m_PassWord;
     }
 
-    public String getAddress() {
-        return address;
+    public String getM_InvestorId() {
+        return m_InvestorId;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setM_InvestorId(String m_InvestorId) {
+        this.m_InvestorId = m_InvestorId;
     }
 
-    public String getAuthCode() {
-        return authCode;
+    public String getM_TradingDay() {
+        return m_TradingDay;
     }
 
-    public void setAuthCode(String authCode) {
-        this.authCode = authCode;
+    public void setM_TradingDay(String m_TradingDay) {
+        this.m_TradingDay = m_TradingDay;
     }
 
-    public String getUserProductInfo() {
-        return userProductInfo;
+    public String getM_AccountId() {
+        return m_AccountId;
     }
 
-    public void setUserProductInfo(String userProductInfo) {
-        this.userProductInfo = userProductInfo;
+    public void setM_AccountId(String m_AccountId) {
+        this.m_AccountId = m_AccountId;
+    }
+
+    public String getM_CurrencyId() {
+        return m_CurrencyId;
+    }
+
+    public void setM_CurrencyId(String m_CurrencyId) {
+        this.m_CurrencyId = m_CurrencyId;
+    }
+
+    public String getM_AppId() {
+        return m_AppId;
+    }
+
+    public void setM_AppId(String m_AppId) {
+        this.m_AppId = m_AppId;
+    }
+
+    public String getM_AuthCode() {
+        return m_AuthCode;
+    }
+
+    public void setM_AuthCode(String m_AuthCode) {
+        this.m_AuthCode = m_AuthCode;
     }
 }

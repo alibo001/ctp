@@ -1,11 +1,7 @@
 package com.nbplus.vnpy.CTPservice;
 
-import com.nbplus.vnpy.CTPservice.impl.TraderSpiImpl;
-import ctp.thostmduserapi.CThostFtdcMdSpi;
+import com.nbplus.vnpy.domain.CTPLogin;
 import ctp.thosttraderapi.*;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 
 /**
  * @Description
@@ -13,13 +9,16 @@ import javax.annotation.Resource;
  * @Date 2019/11/21 16:18
  * @Version 1.0
  **/
-class CtpTdSpi extends CThostFtdcTraderSpi {
+public class CtpTdSpi extends CThostFtdcTraderSpi {
 
 
     private CThostFtdcTraderApi m_traderapi;
 
+    //登录实体类
+    private CTPLogin ctpLogin;
 
-    final static String m_BrokerId = "9999";
+
+   /* final static String m_BrokerId = "9999";
     final static String m_UserId = "110208";
     final static String m_PassWord = "thorp";
     final static String m_InvestorId = "110208";
@@ -27,7 +26,7 @@ class CtpTdSpi extends CThostFtdcTraderSpi {
     final static String m_AccountId = "110208";
     final static String m_CurrencyId = "CNY";
     final static String m_AppId = "simnow_client_test";
-    final static String m_AuthCode = "0000000000000000";
+    final static String m_AuthCode = "0000000000000000";*/
 
    /* // ctp  状态
     private boolean connectionStatus; // 连接状态
@@ -36,8 +35,10 @@ class CtpTdSpi extends CThostFtdcTraderSpi {
     private boolean loginFailed; // 登录失败（账号密码错误）*/
 
 
-    CtpTdSpi(CThostFtdcTraderApi traderapi) {
+   //调取赋值 使用 方法
+    public CtpTdSpi(CThostFtdcTraderApi traderapi,CTPLogin paramLogin) {
         m_traderapi = traderapi;
+        ctpLogin = paramLogin;
     }
 
 
@@ -47,10 +48,10 @@ class CtpTdSpi extends CThostFtdcTraderSpi {
     public void OnFrontConnected() {
         System.out.println("On Front Connected");
         CThostFtdcReqAuthenticateField field = new CThostFtdcReqAuthenticateField();
-        field.setBrokerID(m_BrokerId);
-        field.setUserID(m_UserId);
-        field.setAppID(m_AppId);
-        field.setAuthCode(m_AuthCode);
+        field.setBrokerID(ctpLogin.getM_BrokerId());
+        field.setUserID(ctpLogin.getM_UserId());
+        field.setAppID(ctpLogin.getM_AppId());
+        field.setAuthCode(ctpLogin.getM_AuthCode());
         m_traderapi.ReqAuthenticate(field, 0);
         System.out.println("Send ReqAuthenticate ok");
     }
@@ -73,18 +74,18 @@ class CtpTdSpi extends CThostFtdcTraderSpi {
 
         //请求查询资金账户
         CThostFtdcQryTradingAccountField qryTradingAccount = new CThostFtdcQryTradingAccountField();
-        qryTradingAccount.setBrokerID(m_BrokerId);
-        qryTradingAccount.setCurrencyID(m_CurrencyId);
-        qryTradingAccount.setInvestorID(m_InvestorId);
+        qryTradingAccount.setBrokerID(ctpLogin.getM_BrokerId());
+        qryTradingAccount.setCurrencyID(ctpLogin.getM_CurrencyId());
+        qryTradingAccount.setInvestorID(ctpLogin.getM_InvestorId());
         //m_traderapi.ReqQryTradingAccount(qryTradingAccount, 1);
 
         //请求查询投资者结算结果
         CThostFtdcQrySettlementInfoField qrysettlement = new CThostFtdcQrySettlementInfoField();
-        qrysettlement.setBrokerID(m_BrokerId);
-        qrysettlement.setInvestorID(m_InvestorId);
-        qrysettlement.setTradingDay(m_TradingDay);
-        qrysettlement.setAccountID(m_AccountId);
-        qrysettlement.setCurrencyID(m_CurrencyId);
+        qrysettlement.setBrokerID(ctpLogin.getM_BrokerId());
+        qrysettlement.setInvestorID(ctpLogin.getM_InvestorId());
+        qrysettlement.setTradingDay(ctpLogin.getM_TradingDay());
+        qrysettlement.setAccountID(ctpLogin.getM_AccountId());
+        qrysettlement.setCurrencyID(ctpLogin.getM_CurrencyId());
         m_traderapi.ReqQrySettlementInfo(qrysettlement, 2);
         System.out.println("Query success!!!");
     }
@@ -99,14 +100,10 @@ class CtpTdSpi extends CThostFtdcTraderSpi {
         }
         System.out.println("OnRspAuthenticate success!!!");
         CThostFtdcReqUserLoginField field = new CThostFtdcReqUserLoginField();
-        field.setBrokerID(m_BrokerId);
-        field.setUserID(m_UserId);
-        field.setPassword(m_PassWord);
+        field.setBrokerID(ctpLogin.getM_BrokerId());
+        field.setUserID(ctpLogin.getM_UserId());
+        field.setPassword(ctpLogin.getM_PassWord());
         m_traderapi.ReqUserLogin(field, 0);
         System.out.println("Send login ok");
     }
-
-
-
-
 }

@@ -1,7 +1,11 @@
 package com.nbplus.vnpy.gateway;
 
+import com.nbplus.vnpy.CTPservice.serviceImpl.tdCtpImpl;
+import com.nbplus.vnpy.common.msg.ObjectRestResponse;
+import com.nbplus.vnpy.domain.CTPLogin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,25 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
  * @Version 1.0
  **/
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/tdCTP")
 public class LoginGateway {
 
- /*   @Autowired
-    private CtpTdSpi ctpTdSpi;
+    @Autowired
+    private tdCtpImpl tdCtp;
 
-    *//**
-     * @Description     登录ctp接口方法
-     * @author gt_vv
-     * @date 2019/11/21
-     * @param
-     * @return void
-     *//*
-    @PostMapping("/loginCtp")
-    public void login(){
-        ctpTdSpi.login();
-    }*/
-
-
-
+    @PostMapping("/login")
+    public ObjectRestResponse login(@RequestBody CTPLogin ctpLogin){
+        tdCtp.login(ctpLogin);
+        return null;
+    }
 
 }
