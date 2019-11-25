@@ -28,7 +28,7 @@ public class tdCtpImpl {
         CtpTdSpi ctpTdSpi = new CtpTdSpi(traderApi,ctpLogin);
         //注册一事件处理的实例    参数：实现了 CThostFtdcTraderSpi 接口的实例指针
         traderApi.RegisterSpi(ctpTdSpi);
-        //设置交易托管系统的网络通讯地址
+        //设置交易托管系统的网络通讯地址    目前写死
         traderApi.RegisterFront("tcp://180.168.146.187:10130");
         //订阅私有流
         traderApi.SubscribePublicTopic(THOST_TE_RESUME_TYPE.THOST_TERT_RESTART);
