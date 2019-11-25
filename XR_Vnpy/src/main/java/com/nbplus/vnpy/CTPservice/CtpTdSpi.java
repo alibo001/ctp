@@ -17,17 +17,6 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
     //登录实体类
     private CTPLogin ctpLogin;
 
-
-   /* final static String m_BrokerId = "9999";
-    final static String m_UserId = "110208";
-    final static String m_PassWord = "thorp";
-    final static String m_InvestorId = "110208";
-    final static String m_TradingDay = "20191123";
-    final static String m_AccountId = "110208";
-    final static String m_CurrencyId = "CNY";
-    final static String m_AppId = "simnow_client_test";
-    final static String m_AuthCode = "0000000000000000";*/
-
    /* // ctp  状态
     private boolean connectionStatus; // 连接状态
     private boolean loginStatus; // 登录状态
@@ -35,15 +24,27 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
     private boolean loginFailed; // 登录失败（账号密码错误）*/
 
 
-   //调取赋值 使用 方法
+    /**
+     * @Description  其他java 文件 直接创建对象  用于接受此类中所要执行的参数
+     * @author gt_vv
+     * @date 2019/11/25
+     * @param traderapi
+     * @param paramLogin
+     * @return
+     */
     public CtpTdSpi(CThostFtdcTraderApi traderapi,CTPLogin paramLogin) {
         m_traderapi = traderapi;
         ctpLogin = paramLogin;
     }
 
 
-    // 当客户端与交易托管系统建立起通信连接，客户端需要进行登录
-    //连接前 所执行的 方法
+    /**
+     * @Description  当客户端与交易托管系统建立起通信连接，客户端需要进行登录    连接前 所执行的 方法
+     * @author gt_vv
+     * @date 2019/11/25
+     * @param
+     * @return void
+     */
     @Override
     public void OnFrontConnected() {
         System.out.println("On Front Connected");
@@ -56,12 +57,27 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
         System.out.println("Send ReqAuthenticate ok");
     }
 
-    // 当客户端与交易托管系统通信连接断开时，该方法被调用
+    /**
+     * @Description  当客户端与交易托管系统通信连接断开时，该方法被调用
+     * @author gt_vv
+     * @date 2019/11/25
+     * @param nReason
+     * @return void
+     */
     public void OnFrontDisconnected(int nReason) {
         System.out.printf("OnFrontDisconnected nReason[%d]\n", nReason);
     }
 
-    // 当客户端发出登录请求之后，该方法会被调用，通知客户端登录是否成功
+    /**
+     * @Description   当客户端发出登录请求之后，该方法会被调用，通知客户端登录是否成功
+     * @author gt_vv
+     * @date 2019/11/25
+     * @param pRspUserLogin
+     * @param pRspInfo
+     * @param nRequestID
+     * @param bIsLast
+     * @return void
+     */
     @Override
     public void OnRspUserLogin(CThostFtdcRspUserLoginField pRspUserLogin, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
         if (pRspInfo != null && pRspInfo.getErrorID() != 0) {
