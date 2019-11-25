@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class tdCtpImpl {
 
     /**
-     * @Description  连接ctp的    登录暴露服务层
+     * @Description  连接ctp    登录暴露服务层
      * @author gt_vv
      * @date 2019/11/25
      * @param ctpLogin

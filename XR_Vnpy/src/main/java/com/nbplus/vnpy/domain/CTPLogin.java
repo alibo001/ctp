@@ -9,11 +9,11 @@ package com.nbplus.vnpy.domain;
 public class CTPLogin {
 
     private String m_BrokerId; //= "9999";
-    private String m_UserId ;//= "110208";
-    private String m_PassWord;// = "thorp";
-    private String m_InvestorId;// = "110208";
-    private String m_TradingDay;// = "20191123";
-    private String m_AccountId ;//= "110208";
+    private String m_UserId ;//= "153145";
+    private String m_PassWord;// = "gongtan1234";
+    private String m_InvestorId;// = "153145";
+    private String m_TradingDay;// = "20191125";
+    private String m_AccountId ;//= "153145";
     private String m_CurrencyId;// = "CNY";
     private String m_AppId; //= "simnow_client_test";
     private String m_AuthCode;// = "0000000000000000";
