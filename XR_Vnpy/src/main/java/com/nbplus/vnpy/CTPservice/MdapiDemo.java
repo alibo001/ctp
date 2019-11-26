@@ -64,7 +64,7 @@ public class MdapiDemo {
 	final static String ctp1_MdAddress = "tcp://180.168.146.187:10131";
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		CThostFtdcMdApi mdApi = CThostFtdcMdApi.CreateFtdcMdApi();
+		CThostFtdcMdApi mdApi = CThostFtdcMdApi.CreateFtdcMdApi("md");
 		mdspiImpl pMdspiImpl = new mdspiImpl(mdApi);
 		mdApi.RegisterSpi(pMdspiImpl);
 		mdApi.RegisterFront(ctp1_MdAddress);

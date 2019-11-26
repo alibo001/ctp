@@ -139,10 +139,10 @@ public class TradeapiDemo {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//System.out.println(System.getProperty("java.library.path"));
-		CThostFtdcTraderApi traderApi = CThostFtdcTraderApi.CreateFtdcTraderApi();
+		CThostFtdcTraderApi traderApi = CThostFtdcTraderApi.CreateFtdcTraderApi("td");
 		TraderSpiImpl pTraderSpi = new TraderSpiImpl(traderApi);
 		traderApi.RegisterSpi(pTraderSpi);
-		traderApi.RegisterFront(ctp1_TradeAddress);
+		traderApi.RegisterFront("tcp://127.0.0.1:17001");
 		traderApi.SubscribePublicTopic(THOST_TE_RESUME_TYPE.THOST_TERT_RESTART);
 		traderApi.SubscribePrivateTopic(THOST_TE_RESUME_TYPE.THOST_TERT_RESTART);
 		traderApi.Init();
