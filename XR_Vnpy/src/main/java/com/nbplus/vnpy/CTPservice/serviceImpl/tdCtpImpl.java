@@ -37,7 +37,7 @@ public class tdCtpImpl {
         //使客户端开始与交易托管系统建立连接，连接成功后可以进行登陆。
         traderApi.Init();
         //客户端等待一个接口实例线程的结束。
-        traderApi.Join();
+        //traderApi.Join();
     }
 
 

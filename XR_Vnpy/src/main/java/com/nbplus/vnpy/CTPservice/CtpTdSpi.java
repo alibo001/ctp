@@ -1,6 +1,9 @@
 package com.nbplus.vnpy.CTPservice;
 
 import com.nbplus.vnpy.domain.CTPLogin;
+import com.nbplus.vnpy.event.Event;
+import com.nbplus.vnpy.event.EventType;
+import com.nbplus.vnpy.trader.VtLogData;
 import ctp.thosttraderapi.*;
 
 /**
@@ -122,4 +125,12 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
         m_traderapi.ReqUserLogin(field, 0);
         System.out.println("Send login ok");
     }
+
+    /*// 日志推送
+    public void onLog(VtLogData log) {
+        // 通用事件
+        Event event1 = new Event(EventType.EVENT_LOG);
+        event1.getEventDict().put("data", log);
+        this.eventEngine.put(event1);
+    }*/
 }
