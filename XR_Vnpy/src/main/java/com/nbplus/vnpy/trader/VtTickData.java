@@ -3,7 +3,13 @@ package com.nbplus.vnpy.trader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-
+/**
+ * @Description  市场行情 信息类  调用抽象类VtGatedway中的 市场行情推送方法时 将此类实例化并传入，会进入事件引擎，处理通用事件
+ * @author gt_vv
+ * @date 2019/11/27
+ * @param
+ * @return
+ */
 public class VtTickData extends VtBaseData {
 	
 	// 代码相关

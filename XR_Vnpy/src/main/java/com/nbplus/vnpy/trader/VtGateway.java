@@ -6,13 +6,31 @@ import com.nbplus.vnpy.event.EventEngine;
 import com.nbplus.vnpy.event.EventType;
 
 // 交易接口
+
+/**
+ * @Description  其他数据类型 继承 此类  此类有 事件引擎 gateway 相关
+ * 处理通用事件包括（市场行情推送，成交信息推送，成交信息推送，订单变化推送 ，持仓信息推送，
+ * 账户信息推送，错误信息推送，日志推送，合约基础信息推送，历史数据推送），放入事件队列进行处理
+ * @author gt_vv
+ * @date 2019/11/27
+ * @param
+ * @return
+ */
 public abstract class VtGateway {
+
+    //事件引擎
 	private EventEngine eventEngine;
+
+	//gateway 名称
 	private String gatewayName;
 
-	private boolean qryEnabled;// 循环查询
+	//是否循环查询 boolean类型
+	private boolean qryEnabled;
+
+	//gateway 类型
 	private String gatewayType;
-	
+
+	// 两参数 构造方法   eventEngine   gatewayName
 	public VtGateway(EventEngine eventEngine, String gatewayName) {
 		this.eventEngine = eventEngine;
 		this.gatewayName = gatewayName;
@@ -115,28 +133,28 @@ public abstract class VtGateway {
     }
     
     // 连接
-    abstract public void connect();
+   // abstract public void connect();
     
     // 订阅行情
-    abstract public void subscribe(VtSubscribeReq subscribeReq);
+    //abstract public void subscribe(VtSubscribeReq subscribeReq);
     
     // 发单
-    abstract public void sendOrder(VtOrderReq orderReq);
+    //abstract public void sendOrder(VtOrderReq orderReq);
     
     // 撤单
-    abstract public void cancelOrder(VtCancelOrderReq cancelOrderReq);
+    //abstract public void cancelOrder(VtCancelOrderReq cancelOrderReq);
 
     // 查询账户资金
-    abstract public void qryAccount();
+    //abstract public void qryAccount();
     
     // 查询持仓
-    abstract public void qryPosition();
+    //abstract public void qryPosition();
     
     // 查询历史
-    abstract public void qryHistory(VtHistoryReq historyReq);
+    //abstract public void qryHistory(VtHistoryReq historyReq);
     
     // 关闭
-    abstract public void close();
+    //abstract public void close();
     
     
 	//////////////////Getter Setter////////////////////////////
