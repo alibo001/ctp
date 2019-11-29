@@ -33,12 +33,11 @@ public class CtpMdSpi extends CThostFtdcMdSpi {
     private Set<VtSubscribeReq> subscribedSymbols; // 已订阅合约代码
 
 
-    public CtpMdSpi(CThostFtdcMdApi mdapi,VtSubscribeReq subscribeReq) {
+    public CtpMdSpi(CThostFtdcMdApi mdapi) {
         m_mdapi = mdapi;
         this.subscribedSymbols = new HashSet<VtSubscribeReq>(); // 已订阅合约代码
         this.gateway = gateway; // gateway对象
         //this.gatewayName = gateway.getGatewayName(); // gateway对象名称
-        this.subscribedSymbols.add(subscribeReq);
         this.reqID = 0; // 操作请求编号
 
         this.connectionStatus = false; // 连接状态
@@ -123,12 +122,13 @@ public class CtpMdSpi extends CThostFtdcMdSpi {
      */
 
     public void subscribeMarket(VtSubscribeReq subscribeReq) {
-        if(subscribeReq.getSymbol() == "au1912"){
+        /*if(subscribeReq.getSymbol() == "au1912"){
             m_mdapi.SubscribeMarketData(new String[]{subscribeReq.getSymbol()}, 1);
             System.out.println("订阅");
         }
-
+*/ System.out.println(this.loginStatus);
         if (this.loginStatus) {
+            System.out.println(this.loginStatus);
             //调取订阅
             //new String[]{subscribeReq.getSymbol()}
             m_mdapi.SubscribeMarketData(new String[]{subscribeReq.getSymbol()}, 1);

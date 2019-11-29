@@ -15,13 +15,16 @@ import org.springframework.stereotype.Service;
 public class ctpMdSpiService {
 
     private CThostFtdcMdApi mdApi = CThostFtdcMdApi.CreateFtdcMdApi();
-    final static String ctp1_MdAddress = "tcp://180.168.146.187:10131";
+    //final static String ctp1_MdAddress = "tcp://180.168.146.187:10131";
+    final static String ctp1_MdAddress = "tcp://180.168.146.187:10110";
+    CtpMdSpi pMdspiImpl = new CtpMdSpi(mdApi);
 
     public void getMarketData(VtSubscribeReq subscribeReq){
-        CtpMdSpi pMdspiImpl = new CtpMdSpi(mdApi,subscribeReq);
         mdApi.RegisterSpi(pMdspiImpl);
         mdApi.RegisterFront(ctp1_MdAddress);
         mdApi.Init();
     }
-
+    public void test(VtSubscribeReq subscribeReq) {
+        pMdspiImpl.subscribeMarket(subscribeReq);
+    }
 }

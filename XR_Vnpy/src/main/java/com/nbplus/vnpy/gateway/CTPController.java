@@ -39,20 +39,26 @@ public class CTPController {
     }
 
     /**
-     * @Description  订阅行情
+     * @Description  订阅行情服务器连接
      * @author gt_vv
      * @date 2019/11/28
      * @param subscribeReq
      * @return void
      */
-    @PostMapping("/subscribeMarket")
-    public void test (@RequestBody VtSubscribeReq subscribeReq){
+    @PostMapping("/subscribeCon")
+    public void connect (@RequestBody VtSubscribeReq subscribeReq){
        spiService.getMarketData(subscribeReq);
     }
-    @PostMapping("/subscribeMarket1")
-    public void test1 (@RequestBody VtSubscribeReq subscribeReq){
-        CThostFtdcMdApi mdApi = CThostFtdcMdApi.CreateFtdcMdApi();
-        CtpMdSpi ctpMdSpi = new CtpMdSpi(mdApi,subscribeReq);
-        ctpMdSpi.subscribeMarket(subscribeReq);
+
+    /**
+     * @Description  行情订阅
+     * @author gt_vv
+     * @date 2019/11/29
+     * @param subscribeReq
+     * @return void
+     */
+    @PostMapping("/subscribeMarket")
+    public void subscribeDate (@RequestBody VtSubscribeReq subscribeReq){
+        spiService.test(subscribeReq);
     }
 }
