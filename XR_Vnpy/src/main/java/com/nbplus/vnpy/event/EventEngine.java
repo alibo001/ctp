@@ -51,7 +51,7 @@ public class EventEngine {
     public EventEngine() {
         // 事件队列
         this.queue = new LinkedBlockingQueue<Event>();
-
+        System.out.println("sdfsdsdfsdfdsfsdfs");
         // 事件引擎开关
         this.active = false;
 
@@ -127,6 +127,7 @@ public class EventEngine {
      */
     private synchronized void engineRun() {
         //判断 引擎是否被开启
+        System.out.println("引擎运行线程");
         while (this.active) {
             try {
                 //向队列索求  弹出一个事件（有序）
@@ -136,6 +137,7 @@ public class EventEngine {
                     continue;
                 }
                 //处理事件
+                System.out.println("执行处理");
                 this.process(event);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -170,6 +172,7 @@ public class EventEngine {
 
 
     public void start() {
+        System.out.println("引擎启动");
         start(true);
     }
 
@@ -187,6 +190,7 @@ public class EventEngine {
         this.thread.start();
 
         // 启动计时器，计时器事件间隔默认设定为1秒
+        System.out.println("引擎启动");
         if (timer) {
             this.timerActive = true;
             this.timer.start();

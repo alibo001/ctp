@@ -42,6 +42,7 @@ public class Method {
 	public Object invoke(Object... args) {
 		Object returnVal = null;
 		try {
+			System.out.println("处理成功");
 			returnVal = this.method.invoke(instance, args);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();

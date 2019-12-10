@@ -442,5 +442,53 @@ public class VtTickData extends VtBaseData {
 	public void setTurnover(double turnover) {
 		this.turnover = turnover;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "VtTickData{" +
+				"symbol='" + symbol + '\'' +
+				", exchange='" + exchange + '\'' +
+				", vtSymbol='" + vtSymbol + '\'' +
+				", lastPrice=" + lastPrice +
+				", lastVolume=" + lastVolume +
+				", volume=" + volume +
+				", openInterest=" + openInterest +
+				", time='" + time + '\'' +
+				", date='" + date + '\'' +
+				", datetime=" + datetime +
+				", turnover=" + turnover +
+				", openPrice=" + openPrice +
+				", highPrice=" + highPrice +
+				", lowPrice=" + lowPrice +
+				", preClosePrice=" + preClosePrice +
+				", upperLimit=" + upperLimit +
+				", lowerLimit=" + lowerLimit +
+				", bidPrice1=" + bidPrice1 +
+				", bidPrice2=" + bidPrice2 +
+				", bidPrice3=" + bidPrice3 +
+				", bidPrice4=" + bidPrice4 +
+				", bidPrice5=" + bidPrice5 +
+				", askPrice1=" + askPrice1 +
+				", askPrice2=" + askPrice2 +
+				", askPrice3=" + askPrice3 +
+				", askPrice4=" + askPrice4 +
+				", askPrice5=" + askPrice5 +
+				", bidVolume1=" + bidVolume1 +
+				", bidVolume2=" + bidVolume2 +
+				", bidVolume3=" + bidVolume3 +
+				", bidVolume4=" + bidVolume4 +
+				", bidVolume5=" + bidVolume5 +
+				", askVolume1=" + askVolume1 +
+				", askVolume2=" + askVolume2 +
+				", askVolume3=" + askVolume3 +
+				", askVolume4=" + askVolume4 +
+				", askVolume5=" + askVolume5 +
+				", bt1=" + bt1 +
+				", st1=" + st1 +
+				", bt2=" + bt2 +
+				", st2=" + st2 +
+				", wpr=" + wpr +
+				", ret=" + ret +
+				'}';
+	}
 }

@@ -26,7 +26,7 @@ public class tdCtpImpl {
      * @return void
      */
     public void login(CTPLogin ctpLogin){
-        CThostFtdcTraderApi traderApi = CThostFtdcTraderApi.CreateFtdcTraderApi();
+        CThostFtdcTraderApi traderApi = CThostFtdcTraderApi.CreateFtdcTraderApi("td");
         CtpTdSpi ctpTdSpi = new CtpTdSpi(traderApi,ctpLogin);
         //注册一事件处理的实例    参数：实现了 CThostFtdcTraderSpi 接口的实例指针
         traderApi.RegisterSpi(ctpTdSpi);
@@ -49,6 +49,7 @@ public class tdCtpImpl {
         mdApi.Join();
         //客户端等待一个接口实例线程的结束。
         traderApi.Join();
+        return;
     }
 
 

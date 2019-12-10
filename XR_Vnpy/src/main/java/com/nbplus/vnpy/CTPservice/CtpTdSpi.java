@@ -96,7 +96,8 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
         qryTradingAccount.setBrokerID(ctpLogin.getM_BrokerId());
         qryTradingAccount.setCurrencyID(ctpLogin.getM_CurrencyId());
         qryTradingAccount.setInvestorID(ctpLogin.getM_InvestorId());
-        //m_traderapi.ReqQryTradingAccount(qryTradingAccount, 1);
+        m_traderapi.ReqQryTradingAccount(qryTradingAccount, 1);
+
 
         //请求查询投资者结算结果
         CThostFtdcQrySettlementInfoField qrysettlement = new CThostFtdcQrySettlementInfoField();
@@ -107,6 +108,8 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
         qrysettlement.setCurrencyID(ctpLogin.getM_CurrencyId());
         m_traderapi.ReqQrySettlementInfo(qrysettlement, 2);
         System.out.println("Query success!!!");
+
+        return;
     }
 
     @Override

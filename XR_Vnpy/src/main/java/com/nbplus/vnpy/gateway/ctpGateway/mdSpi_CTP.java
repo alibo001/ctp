@@ -128,6 +128,8 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
 
             // 初始化连接，成功会调用onFrontConnected
             this.mdApi.Init();
+            this.mdApi.Join();
+
         }
         // 若已经连接但尚未登录，则进行登录
         else {
@@ -155,7 +157,8 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
             req.setPassword(this.password);
             req.setBrokerID(this.brokerID);
             this.reqID += 1;
-            this.mdApi.ReqUserLogin(req, this.reqID);
+            int i = this.mdApi.ReqUserLogin(req, this.reqID);
+            System.out.println(i);
         }
     }
 
@@ -212,10 +215,13 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
                 //更新交易日
                 tradingDay = pRspUserLogin.getTradingDay();
                 logger.warn("{}行情接口获取到的交易日为{}", logInfo, tradingDay);
-
+                VtSubscribeReq vtSubscribeReq = new VtSubscribeReq();
+                vtSubscribeReq.setSymbol("MA001");
+                subscribedSymbols.add(vtSubscribeReq);
                 if (!subscribedSymbols.isEmpty()) {
-                    String[] symbolArray = subscribedSymbols.toArray(new String[subscribedSymbols.size()]);
-                    mdApi.SubscribeMarketData(symbolArray, subscribedSymbols.size());
+                    //String[] symbolArray = subscribedSymbols.toArray(new String[subscribedSymbols.size()]);
+                    String [] symbolArray = {"MA001"};//subscribedSymbols.size()
+                    mdApi.SubscribeMarketData(symbolArray, 1);
                 }
             } else {
                 logger.warn("{}行情接口登录回报错误 错误ID:{},错误信息:{}", logInfo, pRspInfo.getErrorID(), pRspInfo.getErrorMsg());
@@ -371,6 +377,7 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
 
             tick.setDate(pDepthMarketData.getTradingDay());
         }
+        System.out.println(tick.toString());
         this.gateway.onTick(tick);
     }
 }

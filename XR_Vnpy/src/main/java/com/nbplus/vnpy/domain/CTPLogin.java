@@ -27,6 +27,9 @@ public class CTPLogin {
         this.mdHostAdress = mdHostAdress;
     }
 
+    //218.202.237.33:10102   交易服务器
+    //218.202.237.33:10112   行情服务器
+
     public String getM_BrokerId() {
         return m_BrokerId;
     }

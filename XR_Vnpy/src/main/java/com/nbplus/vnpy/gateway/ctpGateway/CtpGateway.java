@@ -27,6 +27,17 @@ public class CtpGateway extends VtGateway{
 
     // 行情API连接状态，登录完成后为True
     private boolean mdConnected;
+    static{
+        //资源目录library.path
+        System.out.println(System.getProperty("java.library.path"));
+        //加载动态库
+        //交易dll
+        System.loadLibrary("thosttraderapi_se");
+        System.loadLibrary("thosttraderapi_wrap");
+        //行情dll
+        System.loadLibrary("thostmduserapi_se");
+        System.loadLibrary("thostmduserapi_wrap");
+    }
 
     public CtpGateway(EventEngine eventEngine) {
         this(eventEngine, "CTP");
@@ -73,11 +84,13 @@ public class CtpGateway extends VtGateway{
         String userProductInfo;
 
         // 创建行情和交易接口对象
-        this.mdSpi.connect("153145", "Gongtan123", "9999", "180.168.146.187:10131");
+        this.mdSpi.connect("153145", "Gongtan123", "9999", "tcp://180.168.146.187:10131");
     }
 
     public static void main(String[] args) {
+
         EventEngine eventEngine = new EventEngine();
+        eventEngine.start(false);
         CtpGateway ctpGateway = new CtpGateway(eventEngine,"CTP");
         ctpGateway.connect();
     }
