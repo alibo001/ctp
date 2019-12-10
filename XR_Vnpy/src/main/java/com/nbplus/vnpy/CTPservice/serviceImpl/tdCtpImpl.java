@@ -1,12 +1,6 @@
 package com.nbplus.vnpy.CTPservice.serviceImpl;
 
 
-import com.nbplus.vnpy.CTPservice.CtpTdSpi;
-import com.nbplus.vnpy.domain.CTPLogin;
-import com.nbplus.vnpy.gateway.ctpGateway.CtpMdSpi;
-import ctp.thostmduserapi.CThostFtdcMdApi;
-import ctp.thosttraderapi.CThostFtdcTraderApi;
-import ctp.thosttraderapi.THOST_TE_RESUME_TYPE;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,7 +19,7 @@ public class tdCtpImpl {
      * @param ctpLogin
      * @return void
      */
-    public void login(CTPLogin ctpLogin){
+    /*public void login(CTPLogin ctpLogin){
         CThostFtdcTraderApi traderApi = CThostFtdcTraderApi.CreateFtdcTraderApi("td");
         CtpTdSpi ctpTdSpi = new CtpTdSpi(traderApi,ctpLogin);
         //注册一事件处理的实例    参数：实现了 CThostFtdcTraderSpi 接口的实例指针
@@ -51,7 +45,7 @@ public class tdCtpImpl {
         traderApi.Join();
         return;
     }
-
+*/
 
 
 }
