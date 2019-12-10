@@ -21,6 +21,7 @@ public class ctpMdSpiService {
 
     public void getMarketData(VtSubscribeReq subscribeReq){
         mdApi.RegisterSpi(pMdspiImpl);
+
         mdApi.RegisterFront(ctp1_MdAddress);
         mdApi.Init();
     }

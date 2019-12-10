@@ -1,6 +1,7 @@
 package com.nbplus.vnpy.gateway.ctpGateway;
 
 import com.nbplus.vnpy.common.utils.Text;
+import com.nbplus.vnpy.domain.CTPLogin;
 import com.nbplus.vnpy.trader.VtErrorData;
 import com.nbplus.vnpy.trader.VtLogData;
 import com.nbplus.vnpy.trader.VtPositionData;
@@ -48,15 +49,15 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
     private CThostFtdcTraderApi tdApi;
 
     /**
-     * @param gateway
-     * @return
-     * @Description
+     * @Description 初始化 实现类
      * @author gt_vv
-     * @date 2019/11/27
+     * @date 2019/12/4
+     * @param paramLogin
+     * @return
      */
-    public CtpTdSpi(CtpGateway gateway) {
-        this.gateway = gateway; // gateway对象
-        this.gatewayName = gateway.getGatewayName(); // gateway对象名称
+    public CtpTdSpi(CTPLogin paramLogin) {
+        //this.gateway = gateway; // gateway对象
+        //this.gatewayName = gateway.getGatewayName(); // gateway对象名称
 
         this.reqID = 0; // 操作请求编号
         this.orderRef = 0; // 订单编号
@@ -66,10 +67,14 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
         this.authStatus = false; // 验证状态
         this.loginFailed = false; // 登录失败（账号密码错误）
 
-        this.userID = ""; // 账号
+        /*this.userID = ""; // 账号
         this.password = ""; // 密码
         this.brokerID = ""; // 经纪商代码
-        this.address = ""; // 服务器地址
+        this.address = ""; // 服务器地址*/
+        this.userID=paramLogin.getM_UserId();
+        this.password=paramLogin.getM_PassWord();
+        this.authCode=paramLogin.getM_AuthCode();
+        this.brokerID=paramLogin.getM_BrokerId();
 
         this.frontID = 0; // 前置机编号
         this.sessionID = 0; // 会话编号
@@ -81,7 +86,18 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
         this.requireAuthentication = false;
     }
 
-    // 初始化连接
+    /**
+     * @Description 初始化连接  实现单例的api  连接ctp  调用 init 方法后   回调ctp
+     * @author gt_vv
+     * @date 2019/12/4
+     * @param userID
+     * @param password
+     * @param brokerID
+     * @param address
+     * @param authCode
+     * @param userProductInfo
+     * @return void
+     */
     public void connect(String userID, String password, String brokerID, String address, String authCode,
                         String userProductInfo) {
         this.userID = userID; // 账号
@@ -114,7 +130,7 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
             // 初始化连接，成功会调用onFrontConnected
             this.tdApi.Init();
         }
-        // 若已经连接但尚未登录，则进行登录
+        // 若已经连接但尚未登录，则进行登录   登录状态  验证状态
         else {
             if (this.requireAuthentication && !this.authStatus) {
                 this.authenticate();
@@ -161,7 +177,7 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
             req.setAuthCode(this.authCode);
             req.setUserProductInfo(this.userProductInfo);
             this.reqID += 1;
-            //调用api的登录前验证
+            //调用api的 身份认证
             this.tdApi.ReqAuthenticate(req, this.reqID);
         }
     }
@@ -172,7 +188,7 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
         VtLogData log = new VtLogData();
         log.setGatewayName(this.gatewayName);
         log.setLogContent(content);
-        this.gateway.onLog(log);
+        //this.gateway.onLog(log);
     }
 
     /**
@@ -186,13 +202,14 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
     public void OnFrontConnected() {
         //连接后  才会调用此方法  更改连接状态
         this.connectionStatus = true;
-        System.out.println("On Front Connected");
+        System.out.println("登录前连接（On Front Connected）");
         if (this.requireAuthentication) {
+            //调用身份认证
             this.authenticate();
         } else {
             this.login();
         }
-        System.out.println("Send ReqAuthenticate ok");
+        System.out.println("发送认证信息成功（Send ReqAuthenticate ok）");
     }
 
 
@@ -204,6 +221,7 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
             this.authStatus = true;
             //交易服务器验证
             this.writeLog(Text.TRADING_SERVER_AUTHENTICATED);
+            System.out.println("交易服务器验证成功");
             this.login();
         } else {
             VtErrorData err = new VtErrorData();
@@ -216,18 +234,29 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
 
 
 
-    // 登陆回报
+    /**
+     * @Description  登陆回报
+     * @author gt_vv
+     * @date 2019/12/4
+     * @param pRspUserLogin
+     * @param pRspInfo
+     * @param nRequestID
+     * @param bIsLast
+     * @return void
+     */
     @Override
     public void OnRspUserLogin(CThostFtdcRspUserLoginField pRspUserLogin, CThostFtdcRspInfoField pRspInfo,
                                int nRequestID, boolean bIsLast) {
         boolean isError = (pRspInfo != null) && (pRspInfo.getErrorID() != 0);
         // 如果登录成功，推送日志信息
         if (!isError) {
+            //前置编号
             this.frontID = pRspUserLogin.getFrontID();
+            //会话编号
             this.sessionID = pRspUserLogin.getSessionID();
             this.loginStatus = true;
 
-            this.gateway.setTdConnected(true);
+            //this.gateway.setTdConnected(true);
             //交易服务器登录完成
             this.writeLog(Text.TRADING_SERVER_LOGIN);
 
@@ -236,7 +265,10 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
             req.setBrokerID(this.brokerID);
             req.setInvestorID(this.userID);
             this.reqID += 1;
-            this.tdApi.ReqSettlementInfoConfirm(req, this.reqID);
+            int i = this.tdApi.ReqSettlementInfoConfirm(req, this.reqID);
+            if(i == 0){
+                System.out.println("确认结算信息完成");
+            }
         }
         // 否则，推送错误信息
         else {
@@ -245,9 +277,17 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
             err.setErrorID(pRspInfo.getErrorID()+"");
             err.setErrorMsg(pRspInfo.getErrorMsg());
             this.gateway.onError(err);
-
             // 标识登录失败，防止用错误信息连续重复登录
             this.loginFailed = true;
         }
     }
+
+    @Override
+    public void OnRspQryInvestorPosition(CThostFtdcInvestorPositionField pInvestorPosition, CThostFtdcRspInfoField cThostFtdcRspInfoField, int i, boolean b) {
+        pInvestorPosition.getBrokerID();
+        System.out.println(123);
+        System.out.println(pInvestorPosition.getInstrumentID());
+    }
+
+
 }

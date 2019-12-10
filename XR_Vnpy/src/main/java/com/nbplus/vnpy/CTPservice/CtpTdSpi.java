@@ -133,4 +133,5 @@ public class CtpTdSpi extends CThostFtdcTraderSpi {
         event1.getEventDict().put("data", log);
         this.eventEngine.put(event1);
     }*/
+
 }

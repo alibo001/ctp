@@ -27,11 +27,13 @@ public class xrVNPYApplication {
      * @return
      */
     static{
+        //资源目录library.path
         System.out.println(System.getProperty("java.library.path"));
+        //加载动态库
+        //交易dll
         System.loadLibrary("thosttraderapi_se");
         System.loadLibrary("thosttraderapi_wrap");
-
-        System.out.println(System.getProperty("java.library.path"));
+        //行情dll
         System.loadLibrary("thostmduserapi_se");
         System.loadLibrary("thostmduserapi_wrap");
     }

@@ -10,13 +10,22 @@ public class CTPLogin {
 
     private String m_BrokerId; //= "9999";
     private String m_UserId ;//= "153145";
-    private String m_PassWord;// = "gongtan1234";
+    private String m_PassWord;// = "Gongtan123";
     private String m_InvestorId;// = "153145";
     private String m_TradingDay;// = "20191125";
     private String m_AccountId ;//= "153145";
     private String m_CurrencyId;// = "CNY";
     private String m_AppId; //= "simnow_client_test";
     private String m_AuthCode;// = "0000000000000000";
+    private String mdHostAdress;
+
+    public String getMdHostAdress() {
+        return mdHostAdress;
+    }
+
+    public void setMdHostAdress(String mdHostAdress) {
+        this.mdHostAdress = mdHostAdress;
+    }
 
     public String getM_BrokerId() {
         return m_BrokerId;

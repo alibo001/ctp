@@ -133,7 +133,7 @@ public abstract class VtGateway {
     }
     
     // 连接
-   // abstract public void connect();
+   abstract public void connect();
     
     // 订阅行情
     //abstract public void subscribe(VtSubscribeReq subscribeReq);

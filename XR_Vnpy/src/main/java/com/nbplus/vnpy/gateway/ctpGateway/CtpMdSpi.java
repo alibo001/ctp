@@ -120,7 +120,6 @@ public class CtpMdSpi extends CThostFtdcMdSpi {
      * @param
      * @return
      */
-
     public void subscribeMarket(VtSubscribeReq subscribeReq) {
         /*if(subscribeReq.getSymbol() == "au1912"){
             m_mdapi.SubscribeMarketData(new String[]{subscribeReq.getSymbol()}, 1);
@@ -184,7 +183,6 @@ public class CtpMdSpi extends CThostFtdcMdSpi {
         else {
             System.out.printf("NULL obj\n");
         }
-
     }
 
 }

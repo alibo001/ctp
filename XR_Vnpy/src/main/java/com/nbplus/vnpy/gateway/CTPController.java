@@ -4,6 +4,7 @@ import com.nbplus.vnpy.CTPservice.serviceImpl.tdCtpImpl;
 import com.nbplus.vnpy.common.msg.ObjectRestResponse;
 import com.nbplus.vnpy.domain.CTPLogin;
 import com.nbplus.vnpy.gateway.ctpGateway.CtpMdSpi;
+import com.nbplus.vnpy.gateway.ctpGateway.CtpTdSpi;
 import com.nbplus.vnpy.gateway.ctpGatewayService.ctpMdSpiService;
 import com.nbplus.vnpy.trader.VtSubscribeReq;
 import ctp.thostmduserapi.CThostFtdcMdApi;
@@ -34,6 +35,14 @@ public class CTPController {
 
     @PostMapping("/login")
     public ObjectRestResponse login(@RequestBody CTPLogin ctpLogin){
+        tdCtp.login(ctpLogin);
+        return null;
+    }
+
+    @PostMapping("/login1")
+    public ObjectRestResponse login1(@RequestBody CTPLogin ctpLogin){
+        CtpTdSpi ctpTdSpi = new CtpTdSpi(ctpLogin);
+        ctpTdSpi.connect(ctpLogin.getM_UserId(),ctpLogin.getM_PassWord(),ctpLogin.getM_BrokerId(),"tcp://180.168.146.187:10100",ctpLogin.getM_AuthCode(),"");
         tdCtp.login(ctpLogin);
         return null;
     }
