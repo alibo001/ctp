@@ -1,9 +1,8 @@
 # java_vnpy
 
 #### 介绍
-{**以下是码云平台说明，您可以替换此简介**
-码云是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用码云实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+java版本期货程序化交易系统，包括行情服务，交易服务会逐步完善，CTP版本上期技术官网下载6.3.15 穿透式，
+目前项目无架构设计，只针对ctp进行封装调用，实现基本交易，以及行情，无对外提供接口，
 
 #### 软件架构
 封装 CTP API 编译成java可调用，用java代码封装mdApi(行情服务Api)，td（交易服务Api）。
@@ -22,10 +21,12 @@ CTP系统架构图：
 1.   //资源目录library.path
         System.out.println(System.getProperty("java.library.path"));  查看
      引入 动态库 会报错，可在环境 变量更改，或者项目启动时的 VM options 设置java.library.path
-2.  7*24小时行情服务器，早上  周末关机不运行 tcp://180.168.146.187:10131   7*24 模拟环境
+2.  7-24 小时行情服务器，早上  周末关机不运行 tcp://180.168.146.187:10131       7-24 模拟环境地址      
+
     若服务器地址填错项目启动会报错 RuntimeError:Invalid location in line 44 of file ..\..\source\network\ServiceName.cpp
     jvm 会崩溃
 3.  可运行gateway--ctpGateway--CtpGateway.java中的main方法进行测试
+    可运行event--EventEngine.java测试事件引擎
 
 #### 参与贡献
 
