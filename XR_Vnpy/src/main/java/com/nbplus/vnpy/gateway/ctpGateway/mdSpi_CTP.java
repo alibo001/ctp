@@ -128,8 +128,7 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
 
             // 初始化连接，成功会调用onFrontConnected
             this.mdApi.Init();
-            this.mdApi.Join();
-
+            //this.mdApi.Join();
         }
         // 若已经连接但尚未登录，则进行登录
         else {
@@ -216,11 +215,11 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
                 tradingDay = pRspUserLogin.getTradingDay();
                 logger.warn("{}行情接口获取到的交易日为{}", logInfo, tradingDay);
                 VtSubscribeReq vtSubscribeReq = new VtSubscribeReq();
-                vtSubscribeReq.setSymbol("MA001");
+                vtSubscribeReq.setSymbol("MA2001");
                 subscribedSymbols.add(vtSubscribeReq);
                 if (!subscribedSymbols.isEmpty()) {
                     //String[] symbolArray = subscribedSymbols.toArray(new String[subscribedSymbols.size()]);
-                    String [] symbolArray = {"MA001"};//subscribedSymbols.size()
+                    String [] symbolArray = {"rb2011"};//subscribedSymbols.size()
                     mdApi.SubscribeMarketData(symbolArray, 1);
                 }
             } else {
@@ -267,7 +266,6 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
         subscribedSymbols.remove(symbol);
         if (isConnected()) {
             String[] symbolArray = new String[1];
-            symbolArray[0] = symbol;
             symbolArray[0] = symbol;
             try {
                 mdApi.UnSubscribeMarketData(symbolArray, 1);
