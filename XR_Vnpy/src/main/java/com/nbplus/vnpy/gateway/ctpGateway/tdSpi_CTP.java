@@ -1,5 +1,6 @@
 package com.nbplus.vnpy.gateway.ctpGateway;
 
+import com.nbplus.vnpy.trader.VtAccountData;
 import com.nbplus.vnpy.trader.VtPositionData;
 import ctp.thosttraderapi.*;
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
      * @Description  创建单例时 初始化
      * @author gt_vv
      * @date 2019/12/11
-     * @param ctpGateway
+     * @param gateway
      * @return
      */
     public tdSpi_CTP(CtpGateway gateway){
@@ -171,9 +172,8 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             req.setUserProductInfo(this.userProductInfo);
             this.reqID += 1;
             logger.warn("交易接口申请验证");
-            System.out.println("OnRspAuthenticate success!!!");
             int i = this.tdApi.ReqAuthenticate(req, this.reqID);
-            logger.warn("交易接口发送登录成功");
+            logger.warn("交易接口发送登录请求成功");
         }
     }
 
@@ -261,8 +261,9 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
                 CThostFtdcSettlementInfoConfirmField settlementInfoConfirmField = new CThostFtdcSettlementInfoConfirmField();
                 settlementInfoConfirmField.setBrokerID(brokerID);
                 settlementInfoConfirmField.setInvestorID(userID);
-                tdApi.ReqSettlementInfoConfirm(settlementInfoConfirmField, reqID);
-
+                reqID++;
+                int i = tdApi.ReqSettlementInfoConfirm(settlementInfoConfirmField, reqID);
+                this.queryAccount();
             } else {
                 logger.error("{}交易接口登录回报错误 错误ID:{},错误信息:{}", logInfo, pRspInfo.getErrorID(), pRspInfo.getErrorMsg());
                 loginFailed = true;
@@ -271,6 +272,69 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             logger.error("{}交易接口处理登录回报异常", logInfo, t);
             loginFailed = true;
         }
+    }
+
+
+
+    public void queryAccount() {
+        if (tdApi == null) {
+            logger.warn("{}交易接口尚未初始化,无法查询账户", logInfo);
+            return;
+        }
+        if (!loginStatus) {
+            logger.warn("{}交易接口尚未登录,无法查询账户", logInfo);
+            return;
+        }
+        try {
+            reqID++;
+            CThostFtdcQryTradingAccountField cThostFtdcQryTradingAccountField = new CThostFtdcQryTradingAccountField();
+            tdApi.ReqQryTradingAccount(cThostFtdcQryTradingAccountField, reqID);
+        } catch (Throwable t) {
+            logger.error("{}交易接口查询账户异常", logInfo, t);
+        }
 
     }
+
+    /**
+     * @Description 账户查询回报
+     * @author gt_vv
+     * @date 2019/12/11
+     * @param pTradingAccount
+     * @param pRspInfo
+     * @param nRequestID
+     * @param bIsLast
+     * @return void
+     */
+   @Override
+    public void OnRspQryTradingAccount(CThostFtdcTradingAccountField pTradingAccount, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
+
+        try {
+            String accountCode = pTradingAccount.getAccountID();
+            String currency = pTradingAccount.getCurrencyID();
+            // 无法获取币种信息使用特定值
+            //String vtAccountData = accountCode + "@" + currency + "@" + gatewayId;
+            VtAccountData accountData = new VtAccountData();
+            accountData.setAccountID(accountCode);
+            //accountData.setVtAccountID();
+            //accountData.setCurrency(CurrencyEnum.valueOf(currency));
+            accountData.setAvailable(pTradingAccount.getAvailable());
+            accountData.setCloseProfit(pTradingAccount.getCloseProfit());
+            accountData.setCommission(pTradingAccount.getCommission());
+            accountData.setMargin(pTradingAccount.getCurrMargin());
+            accountData.setPositionProfit(pTradingAccount.getPositionProfit());
+            accountData.setPreBalance(pTradingAccount.getPreBalance());
+            //accountData.setDeposit(pTradingAccount.getDeposit());
+            //accountData.setWithdraw(pTradingAccount.getWithdraw());
+            //accountData.setHolder(investorName);
+
+            accountData.setBalance(pTradingAccount.getBalance());
+            System.out.println(accountData);
+          // this.gateway.
+        } catch (Throwable t) {
+            logger.error("{}处理查询账户回报异常", logInfo, t);
+            //ctpGatewayImpl.disconnect();
+        }
+
+    }
+
 }

@@ -51,7 +51,6 @@ public class EventEngine {
     public EventEngine() {
         // 事件队列
         this.queue = new LinkedBlockingQueue<Event>();
-        System.out.println("sdfsdsdfsdfdsfsdfs");
         // 事件引擎开关
         this.active = false;
 
@@ -127,7 +126,6 @@ public class EventEngine {
      */
     private synchronized void engineRun() {
         //判断 引擎是否被开启
-        System.out.println("引擎运行线程");
         while (this.active) {
             try {
                 //向队列索求  弹出一个事件（有序）

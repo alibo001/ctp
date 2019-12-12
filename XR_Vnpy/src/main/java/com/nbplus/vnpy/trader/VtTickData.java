@@ -489,6 +489,7 @@ public class VtTickData extends VtBaseData {
 				", st2=" + st2 +
 				", wpr=" + wpr +
 				", ret=" + ret +
+				", gatewayName=" + getGatewayName() +
 				'}';
 	}
 }

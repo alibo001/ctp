@@ -4,6 +4,7 @@ package com.nbplus.vnpy.gateway.ctpGateway;
 import com.nbplus.vnpy.event.EventEngine;
 import com.nbplus.vnpy.trader.VtConstant;
 import com.nbplus.vnpy.trader.VtGateway;
+import com.nbplus.vnpy.trader.VtSubscribeReq;
 
 /**
  * @Description   ctp的接口 实例化接口
@@ -57,7 +58,7 @@ public class CtpGateway extends VtGateway {
         tdSpi = new tdSpi_CTP(this);
         // 行情API连接状态，登录完成后为True
         this.mdConnected = false;
-        this.tdConnected = false;
+       // this.tdConnected = false;
         // 循环查询
         this.setQryEnabled(true);
         this.setGatewayType(VtConstant.GATEWAYTYPE_FUTURES);
@@ -83,16 +84,20 @@ public class CtpGateway extends VtGateway {
         String mdAddress;
         String authCode;
         String userProductInfo;
-
+        //8001001385   wwy123zxq@    4500    101.200.144.24:41313
         // 创建行情和交易接口对象
-        this.mdSpi.connect("153145", "Gongtan123", "9999", "tcp://180.168.146.187:10131");
+        //this.mdSpi.connect("153145", "Gongtan123", "9999", "tcp://180.168.146.187:10131");
+        // 真实 服务器
+        //this.mdSpi.connect("8001001385", "wwy123zxq@", "4500", "tcp://101.200.144.24:41313");
         //tcp://180.168.146.187:10131   7*24 模拟环境
         //tcp://180.168.146.187:10110   真实环境
-        this.tdSpi.connect("153145","Gongtan123","9999",
-                "tcp://180.168.146.187:10130","0000000000000000","simnow_client_test");
-        //String userID, String password, String brokerID, String address, String authCode,
-        //                        String userProductInfo
+        this.tdSpi.connect("153145","Gongtan123","9999","tcp://180.168.146.187:10130","0000000000000000","simnow_client_test");
         //tcp://180.168.146.187:10130  7*24交易CTP
+    }
+    // 订阅行情
+    @Override
+    public void subscribe(VtSubscribeReq subscribeReq) {
+        this.mdSpi.subscribe(subscribeReq);
     }
 
     /**

@@ -136,7 +136,7 @@ public abstract class VtGateway {
    abstract public void connect();
     
     // 订阅行情
-    //abstract public void subscribe(VtSubscribeReq subscribeReq);
+    abstract public void subscribe(VtSubscribeReq subscribeReq);
     
     // 发单
     //abstract public void sendOrder(VtOrderReq orderReq);

@@ -128,7 +128,7 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
 
             // 初始化连接，成功会调用onFrontConnected
             this.mdApi.Init();
-            //this.mdApi.Join();
+            this.mdApi.Join();
         }
         // 若已经连接但尚未登录，则进行登录
         else {
@@ -162,7 +162,7 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
     }
 
     /**
-     * @Description     登录前执行
+     * @Description  登录前执行
      * @author gt_vv
      * @date 2019/12/10
      * @param
@@ -219,7 +219,7 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
                 subscribedSymbols.add(vtSubscribeReq);
                 if (!subscribedSymbols.isEmpty()) {
                     //String[] symbolArray = subscribedSymbols.toArray(new String[subscribedSymbols.size()]);
-                    String [] symbolArray = {"rb2011"};//subscribedSymbols.size()
+                    String [] symbolArray = {"MA001"};//subscribedSymbols.size()
                     mdApi.SubscribeMarketData(symbolArray, 1);
                 }
             } else {
@@ -285,6 +285,7 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
     public void OnHeartBeatWarning(int nTimeLapse) {
         logger.warn(logInfo + "行情接口心跳警告 nTimeLapse:" + nTimeLapse);
     }
+
     // 错误回报
     @Override
     public void OnRspError(CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
@@ -297,7 +298,7 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
 
     /**
      * @Description 合约行情推送
-     * @author gt_vv
+     * @author gt_vv+
      * @date 2019/12/10
      * @param pDepthMarketData
      * @return void
@@ -310,7 +311,8 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
         }
         // 创建对象
         VtTickData tick = new VtTickData();
-        //tick.setGatewayName(this.gatewayName);
+        tick.setGatewayName(this.gatewayName);
+        //tick.setExchange(CtpGlobal.symbolExchangeDict.get(tick.getSymbol()));
         // 行情代码
         tick.setSymbol(pDepthMarketData.getInstrumentID());
         // 交易所代码
@@ -376,6 +378,7 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
             tick.setDate(pDepthMarketData.getTradingDay());
         }
         System.out.println(tick.toString());
+        System.out.println("tick数据");
         this.gateway.onTick(tick);
     }
 }

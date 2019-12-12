@@ -72,4 +72,19 @@ public class VtAccountData extends VtBaseData{
 	public void setPositionProfit(double positionProfit) {
 		this.positionProfit = positionProfit;
 	}
+
+	@Override
+	public String toString() {
+		return "VtAccountData{" +
+				"accountID='" + accountID + '\'' +
+				", vtAccountID='" + vtAccountID + '\'' +
+				", preBalance=" + preBalance +
+				", balance=" + balance +
+				", available=" + available +
+				", commission=" + commission +
+				", margin=" + margin +
+				", closeProfit=" + closeProfit +
+				", positionProfit=" + positionProfit +
+				'}';
+	}
 }
