@@ -14,10 +14,17 @@ public class VtAccountData extends VtBaseData{
     private double margin;               // 保证金占用
     private double closeProfit;          // 平仓盈亏
     private double positionProfit;       // 持仓盈亏
-    
-    
-    
-    
+	private String currency;			// 币种
+
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
 	public String getAccountID() {
 		return accountID;
 	}
@@ -85,6 +92,7 @@ public class VtAccountData extends VtBaseData{
 				", margin=" + margin +
 				", closeProfit=" + closeProfit +
 				", positionProfit=" + positionProfit +
+				", currency=" + currency +
 				'}';
 	}
 }

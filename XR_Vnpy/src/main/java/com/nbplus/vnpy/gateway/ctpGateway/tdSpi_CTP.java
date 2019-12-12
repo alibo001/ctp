@@ -3,6 +3,7 @@ package com.nbplus.vnpy.gateway.ctpGateway;
 import com.nbplus.vnpy.trader.VtAccountData;
 import com.nbplus.vnpy.trader.VtPositionData;
 import ctp.thosttraderapi.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     private String userProductInfo;
 
     private String tradingDay;//交易日
+    private String investorName;//投资者
 
     //撤单所需变量
     private int frontID; // 前置机编号
@@ -262,7 +264,8 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
                 settlementInfoConfirmField.setBrokerID(brokerID);
                 settlementInfoConfirmField.setInvestorID(userID);
                 reqID++;
-                int i = tdApi.ReqSettlementInfoConfirm(settlementInfoConfirmField, reqID);
+                //会执行结算回报
+                tdApi.ReqSettlementInfoConfirm(settlementInfoConfirmField, reqID);
                 this.queryAccount();
             } else {
                 logger.error("{}交易接口登录回报错误 错误ID:{},错误信息:{}", logInfo, pRspInfo.getErrorID(), pRspInfo.getErrorMsg());
@@ -274,8 +277,51 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         }
     }
 
+    /**
+     * @Description API投资者结算 被调用后  spi结算回报会被执行
+     * @author gt_vv
+     * @date 2019/12/12
+     * @param pSettlementInfoConfirm
+     * @param pRspInfo
+     * @param nRequestID
+     * @param bIsLast
+     * @return void
+     */
+    @Override
+    public void OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField pSettlementInfoConfirm, CThostFtdcRspInfoField pRspInfo, int nRequestID,
+                                           boolean bIsLast) {
+        try {
+            if (pRspInfo.getErrorID() == 0) {
+                logger.warn("{}交易接口结算信息确认完成", logInfo);
+            } else {
+                logger.error("{}交易接口结算信息确认出错 错误ID:{},错误信息:{}", logInfo, pRspInfo.getErrorID(), pRspInfo.getErrorMsg());
+                //ctpGatewayImpl.disconnect();
+                return;
+            }
+
+            // 防止被限流
+            Thread.sleep(1000);
+
+            logger.warn("{}交易接口开始查询投资者信息", logInfo);
+            CThostFtdcQryInvestorField pQryInvestor = new CThostFtdcQryInvestorField();
+            pQryInvestor.setInvestorID(userID);
+            pQryInvestor.setBrokerID(brokerID);
+            reqID++;
+            tdApi.ReqQryInvestor(pQryInvestor, reqID);
+        } catch (Throwable t) {
+            logger.error("{}处理结算单确认回报错误", logInfo, t);
+            //ctpGatewayImpl.disconnect();
+        }
+    }
 
 
+    /**
+     * @Description  此方法为向外暴露接口所调用的   作用查询账户信息 此方法调用后会执行OnRspQryTradingAccount()查询得到回报信息
+     * @author gt_vv
+     * @date 2019/12/12
+     * @param
+     * @return void
+     */
     public void queryAccount() {
         if (tdApi == null) {
             logger.warn("{}交易接口尚未初始化,无法查询账户", logInfo);
@@ -292,7 +338,6 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         } catch (Throwable t) {
             logger.error("{}交易接口查询账户异常", logInfo, t);
         }
-
     }
 
     /**
@@ -311,30 +356,60 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         try {
             String accountCode = pTradingAccount.getAccountID();
             String currency = pTradingAccount.getCurrencyID();
-            // 无法获取币种信息使用特定值
-            //String vtAccountData = accountCode + "@" + currency + "@" + gatewayId;
             VtAccountData accountData = new VtAccountData();
             accountData.setAccountID(accountCode);
-            //accountData.setVtAccountID();
-            //accountData.setCurrency(CurrencyEnum.valueOf(currency));
             accountData.setAvailable(pTradingAccount.getAvailable());
             accountData.setCloseProfit(pTradingAccount.getCloseProfit());
             accountData.setCommission(pTradingAccount.getCommission());
             accountData.setMargin(pTradingAccount.getCurrMargin());
             accountData.setPositionProfit(pTradingAccount.getPositionProfit());
             accountData.setPreBalance(pTradingAccount.getPreBalance());
-            //accountData.setDeposit(pTradingAccount.getDeposit());
-            //accountData.setWithdraw(pTradingAccount.getWithdraw());
-            //accountData.setHolder(investorName);
-
             accountData.setBalance(pTradingAccount.getBalance());
+            System.out.println(currency);
             System.out.println(accountData);
           // this.gateway.
         } catch (Throwable t) {
             logger.error("{}处理查询账户回报异常", logInfo, t);
             //ctpGatewayImpl.disconnect();
         }
-
     }
 
+
+    @Override
+    public void OnRspQryInvestor(CThostFtdcInvestorField pInvestor, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
+
+        try {
+
+            if (pRspInfo != null && pRspInfo.getErrorID() != 0) {
+                logger.error("{}查询投资者信息失败 错误ID:{},错误信息:{}", logInfo, pRspInfo.getErrorID(), pRspInfo.getErrorMsg());
+                return;
+                //ctpGatewayImpl.disconnect();
+            } else {
+                if (pInvestor != null) {
+                    investorName = pInvestor.getInvestorName();
+                    logger.warn("{}交易接口获取到的投资者名为:{}", logInfo, investorName);
+                } else {
+                    logger.error("{}交易接口未能获取到投资者名", logInfo);
+                }
+            }
+            if (bIsLast) {
+                if (StringUtils.isBlank(investorName)) {
+                    logger.warn("{}交易接口未能获取到投资者名,准备断开", logInfo);
+                    return;
+                    //ctpGatewayImpl.disconnect();
+                }
+                //investorNameQueried = true;
+                reqID++;
+                // 防止被限流
+                Thread.sleep(1000);
+                // 查询所有合约
+                logger.warn("{}交易接口开始查询合约信息", logInfo);
+                CThostFtdcQryInstrumentField cThostFtdcQryInstrumentField = new CThostFtdcQryInstrumentField();
+                tdApi.ReqQryInstrument(cThostFtdcQryInstrumentField, reqID);
+            }
+        } catch (Throwable t) {
+            logger.error("{}处理查询投资者回报异常", logInfo, t);
+            //ctpGatewayImpl.disconnect();
+        }
+    }
 }
