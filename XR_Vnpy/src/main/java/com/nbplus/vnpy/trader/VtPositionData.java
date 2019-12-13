@@ -113,4 +113,20 @@ public class VtPositionData extends VtBaseData {
 	public void setPositionProfit(double positionProfit) {
 		this.positionProfit = positionProfit;
 	}
+
+	@Override
+	public String toString() {
+		return "VtPositionData{" +
+				"symbol='" + symbol + '\'' +
+				", exchange='" + exchange + '\'' +
+				", vtSymbol='" + vtSymbol + '\'' +
+				", direction='" + direction + '\'' +
+				", position=" + position +
+				", frozen=" + frozen +
+				", price=" + price +
+				", vtPositionName='" + vtPositionName + '\'' +
+				", ydPosition=" + ydPosition +
+				", positionProfit=" + positionProfit +
+				'}';
+	}
 }

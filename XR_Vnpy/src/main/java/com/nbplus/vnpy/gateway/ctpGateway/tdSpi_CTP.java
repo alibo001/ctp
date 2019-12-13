@@ -13,6 +13,7 @@ import org.springframework.beans.BeanUtils;
 
 import javax.sound.midi.Instrument;
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,7 +53,8 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     private int frontID; // 前置机编号
     private int sessionID; // 会话编号
 
-    private Map<String, VtPositionData> posDict;
+
+    private Map<String, VtPositionData> posDict;    //持仓缓存   vt系统唯一编码为key
     private Map<String, String> symbolExchangeDict; // 保存合约代码和交易所的印射关系
     private Map<String, Integer> symbolSizeDict; // 保存合约代码和合约大小的印射关系
 
@@ -61,13 +63,13 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     private CThostFtdcTraderApi tdApi;
 
     /**
-     * @Description  创建单例时 初始化
-     * @author gt_vv
-     * @date 2019/12/11
      * @param gateway
      * @return
+     * @Description 创建单例时 初始化
+     * @author gt_vv
+     * @date 2019/12/11
      */
-    public tdSpi_CTP(CtpGateway gateway){
+    public tdSpi_CTP(CtpGateway gateway) {
         this.gateway = gateway; // gateway对象
         this.gatewayName = gateway.getGatewayName(); // gateway对象名称
 
@@ -113,7 +115,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
                 path.mkdirs();
             }
             //创建  tdApi（单例）
-            this.tdApi = CThostFtdcTraderApi.CreateFtdcTraderApi(path.getPath()+System.getProperty("file.separator"));
+            this.tdApi = CThostFtdcTraderApi.CreateFtdcTraderApi(path.getPath() + System.getProperty("file.separator"));
             //注册一事件处理的实例    参数：实现了 CThostFtdcTraderSpi 接口的实例指针
             this.tdApi.RegisterSpi(this);
 
@@ -142,7 +144,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     // 连接服务器
     private void login() {
         // 如果之前有过登录失败，则不再进行尝试
-        if (this.loginFailed){
+        if (this.loginFailed) {
             return;
         }
         // 如果填入了用户名密码等，则登录
@@ -161,11 +163,11 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
 
 
     /**
+     * @param
+     * @return void
      * @Description 申请验证
      * @author gt_vv
      * @date 2019/12/11
-     * @param
-     * @return void
      */
     private void authenticate() {
         if ((this.userID != null && !"".equals(this.userID.trim()))
@@ -185,11 +187,11 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     }
 
     /**
+     * @param
+     * @return void
      * @Description 前置机联机回报
      * @author gt_vv
      * @date 2019/12/11
-     * @param
-     * @return void
      */
     @Override
     public void OnFrontConnected() {
@@ -205,16 +207,15 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     }
 
 
-
     /**
-     * @Description 验证客户端回报
-     * @author gt_vv
-     * @date 2019/12/11
      * @param pRspAuthenticateField
      * @param pRspInfo
      * @param nRequestID
      * @param bIsLast
      * @return void
+     * @Description 验证客户端回报
+     * @author gt_vv
+     * @date 2019/12/11
      */
     @Override
     public void OnRspAuthenticate(CThostFtdcRspAuthenticateField pRspAuthenticateField, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
@@ -242,14 +243,14 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     }
 
     /**
-     * @Description  登录回报
-     * @author gt_vv
-     * @date 2019/12/11
      * @param pRspUserLogin
      * @param pRspInfo
      * @param nRequestID
      * @param bIsLast
      * @return void
+     * @Description 登录回报
+     * @author gt_vv
+     * @date 2019/12/11
      */
     @Override
     public void OnRspUserLogin(CThostFtdcRspUserLoginField pRspUserLogin, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
@@ -283,14 +284,14 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     }
 
     /**
-     * @Description API投资者结算（结算在OnRspUserLogin中被调用） 被调用后  spi结算回报会被执行
-     * @author gt_vv
-     * @date 2019/12/12
      * @param pSettlementInfoConfirm
      * @param pRspInfo
      * @param nRequestID
      * @param bIsLast
      * @return void
+     * @Description API投资者结算（结算在OnRspUserLogin中被调用） 被调用后  spi结算回报会被执行
+     * @author gt_vv
+     * @date 2019/12/12
      */
     @Override
     public void OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField pSettlementInfoConfirm, CThostFtdcRspInfoField pRspInfo, int nRequestID,
@@ -323,11 +324,11 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
 
 
     /**
-     * @Description  此方法为向外暴露接口所调用的   作用查询账户信息 此方法调用后会执行OnRspQryTradingAccount()查询得到回报信息
-     * @author gt_vv
-     * @date 2019/12/12
      * @param
      * @return void
+     * @Description 此方法为向外暴露接口所调用的   作用查询账户信息 此方法调用后会执行OnRspQryTradingAccount()查询得到回报信息
+     * @author gt_vv
+     * @date 2019/12/12
      */
     public void queryAccount() {
         if (tdApi == null) {
@@ -348,16 +349,16 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     }
 
     /**
-     * @Description 账户查询回报
-     * @author gt_vv
-     * @date 2019/12/11
      * @param pTradingAccount
      * @param pRspInfo
      * @param nRequestID
      * @param bIsLast
      * @return void
+     * @Description 账户查询回报
+     * @author gt_vv
+     * @date 2019/12/11
      */
-   @Override
+    @Override
     public void OnRspQryTradingAccount(CThostFtdcTradingAccountField pTradingAccount, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
 
         try {
@@ -374,7 +375,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             accountData.setBalance(pTradingAccount.getBalance());
             System.out.println(currency);
             System.out.println(accountData);
-          // this.gateway.
+            // this.gateway.
         } catch (Throwable t) {
             logger.error("{}处理查询账户回报异常", logInfo, t);
             //ctpGatewayImpl.disconnect();
@@ -383,14 +384,14 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
 
 
     /**
-     * @Description 查询指令后，交易托管系统返回 响应时，该方法会被调用
-     * @author gt_vv
-     * @date 2019/12/13
      * @param pInvestor
      * @param pRspInfo
      * @param nRequestID
      * @param bIsLast
      * @return void
+     * @Description 查询指令后，交易托管系统返回 响应时，该方法会被调用
+     * @author gt_vv
+     * @date 2019/12/13
      */
     @Override
     public void OnRspQryInvestor(CThostFtdcInvestorField pInvestor, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
@@ -431,9 +432,19 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         }
     }
 
+    /**
+     * @Description   查询合约回报
+     * @author gt_vv
+     * @date 2019/12/13
+     * @param pInstrument
+     * @param pRspInfo
+     * @param nRequestID
+     * @param bIsLast
+     * @return void
+     */
     @Override
-    public void OnRspQryInstrument(CThostFtdcInstrumentField pInstrument, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast){
-        if(pInstrument == null){
+    public void OnRspQryInstrument(CThostFtdcInstrumentField pInstrument, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
+        if (pInstrument == null) {
             logger.warn("暂无合约信息");
             return;
         }
@@ -442,13 +453,13 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         vtContractData.setSymbol(pInstrument.getInstrumentID());
         vtContractData.setExchange(pInstrument.getExchangeID());
         //vt系统唯一标识
-        vtContractData.setVtSymbol(pInstrument.getInstrumentID()+ "." +pInstrument.getExchangeID());
+        vtContractData.setVtSymbol(pInstrument.getInstrumentID() + "." + pInstrument.getExchangeID());
         //合约名称
         vtContractData.setName(pInstrument.getInstrumentName());
         //到期日
         vtContractData.setExpiryDate(pInstrument.getExpireDate());
         //合约类型
-        vtContractData.setProductClass( CtpGlobal.productClassMapReverse.getOrDefault(pInstrument.getProductClass(), VtConstant.PRODUCT_UNKNOWN));
+        vtContractData.setProductClass(CtpGlobal.productClassMapReverse.getOrDefault(pInstrument.getProductClass(), VtConstant.PRODUCT_UNKNOWN));
         //合约大小
         vtContractData.setSize(pInstrument.getVolumeMultiple());
         //priceTick合约最小价格TICK
@@ -456,7 +467,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
 
         // ETF期权的标的命名方式需要调整（ETF代码 + 到期月份）
         if (VtConstant.EXCHANGE_SSE.equals(vtContractData.getExchange()) || VtConstant.EXCHANGE_SZSE.equals(vtContractData.getExchange())) {
-            vtContractData.setUnderlyingSymbol(pInstrument.getUnderlyingInstrID()+"-"+pInstrument.getExpireDate().substring(2, pInstrument.getExpireDate().length()-2));
+            vtContractData.setUnderlyingSymbol(pInstrument.getUnderlyingInstrID() + "-" + pInstrument.getExpireDate().substring(2, pInstrument.getExpireDate().length() - 2));
         }
         // 商品期权无需调整
         else {
@@ -467,24 +478,110 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         if (VtConstant.PRODUCT_OPTION.equals(vtContractData.getProductClass())) {
             if (pInstrument.getOptionsType() == '1') {
                 vtContractData.setOptionType(VtConstant.OPTION_CALL);
-            }else if (pInstrument.getOptionsType() == '2') {
+            } else if (pInstrument.getOptionsType() == '2') {
                 vtContractData.setOptionType(VtConstant.OPTION_PUT);
             }
         }
-
         // 缓存代码和交易所的印射关系
         this.symbolExchangeDict.put(vtContractData.getSymbol(), vtContractData.getExchange());
         this.symbolSizeDict.put(vtContractData.getSymbol(), vtContractData.getSize());
 
         // 缓存合约代码和交易所映射  ---- 全局映射关系
         CtpGlobal.symbolExchangeDict.put(vtContractData.getSymbol(), vtContractData.getExchange());
-
+        this.queryPosition();
         // 推送
         this.gateway.onContract(vtContractData);
         System.out.println(vtContractData);
-        if(bIsLast) {
+        if (bIsLast) {
             //为true 合约查询成功
             logger.warn(Text.CONTRACT_DATA_RECEIVED);
         }
+    }
+
+    public void queryPosition() {
+        if (tdApi == null) {
+            logger.warn("{}交易接口尚未初始化,无法查询持仓", logInfo);
+            return;
+        }
+        if (!loginStatus) {
+            logger.warn("{}交易接口尚未登录,无法查询持仓", logInfo);
+            return;
+        }
+        try {
+            CThostFtdcQryInvestorPositionField cThostFtdcQryInvestorPositionField = new CThostFtdcQryInvestorPositionField();
+            cThostFtdcQryInvestorPositionField.setBrokerID(brokerID);
+            cThostFtdcQryInvestorPositionField.setInvestorID(userID);
+            reqID++;
+            tdApi.ReqQryInvestorPosition(cThostFtdcQryInvestorPositionField, reqID);
+        } catch (Throwable t) {
+            logger.error("{}交易接口查询持仓异常", logInfo, t);
+        }
+
+    }
+
+    /**
+     * @param pInvestorPosition
+     * @param pRspInfo
+     * @param nRequestID
+     * @param bIsLast
+     * @return void
+     * @Description // 持仓查询回报
+     * @author gt_vv
+     * @date 2019/12/13
+     */
+    @Override
+    public void OnRspQryInvestorPosition(CThostFtdcInvestorPositionField pInvestorPosition, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
+
+        if (pInvestorPosition == null || StringUtils.isEmpty(pInvestorPosition.getInstrumentID())) {
+            return;
+        }
+        //缓存在是否 包含vt唯一   不包含则重新创建
+       String vtId =  pInvestorPosition.getInstrumentID() + "." + pInvestorPosition.getExchangeID();
+        VtPositionData vtPositionData;
+        if(posDict.containsKey(vtId)){
+            vtPositionData = posDict.get(vtId);
+        }else{
+            //缓存中没有则创建对象
+            vtPositionData = new VtPositionData();
+            posDict.put(vtId,vtPositionData);
+            vtPositionData.setVtSymbol(vtId);
+            vtPositionData.setSymbol(pInvestorPosition.getInstrumentID());
+        }
+
+
+        // 获取持仓
+        //持仓量
+        vtPositionData.setPosition(pInvestorPosition.getPosition());
+        //方向
+        String directionLong = VtConstant.DIRECTION_LONG;
+        //String direction = Character.toString(pInvestorPosition.getPosiDirection()) == "1" ?  VtConstant.DIRECTION_LONG : VtConstant.DIRECTION_NONE;
+        vtPositionData.setDirection(Character.toString(pInvestorPosition.getPosiDirection()));
+        //vt 唯一标识
+        vtPositionData.setVtPositionName(pInvestorPosition.getInstrumentID() + "." + pInvestorPosition.getExchangeID() + "." + Character.toString(pInvestorPosition.getPosiDirection()));
+
+
+        if (vtPositionData.getDirection() == VtConstant.DIRECTION_LONG) {
+            vtPositionData.setFrozen(pInvestorPosition.getShortFrozen());
+        } else {
+            vtPositionData.setFrozen(pInvestorPosition.getLongFrozen());
+        }
+    //TODO 持仓功能未完成
+        // 针对上期所、上期能源持仓的今昨分条返回（有昨仓、无今仓）,读取昨仓数据
+        if(VtConstant.EXCHANGE_INE == vtPositionData.getExchange() || VtConstant.EXCHANGE_SHFE == vtPositionData.getExchange()){
+            if (pInvestorPosition.getYdPosition() > 0 && pInvestorPosition.getTodayPosition() == 0) {
+
+                vtPositionData.setYdPosition(vtPositionData.getYdPosition() + pInvestorPosition.getPosition());
+
+            } else {
+                vtPositionData.setPosition(vtPositionData.getPosition() + pInvestorPosition.getPosition());
+
+                if (vtPositionData.getDirection() == "2") {
+                    vtPositionData.setFrozen(vtPositionData.getFrozen() + pInvestorPosition.getShortFrozen());
+                } else {
+                    vtPositionData.setFrozen(vtPositionData.getFrozen() + pInvestorPosition.getLongFrozen());
+                }
+            }
+        }
+        System.out.println(vtPositionData);
     }
 }
