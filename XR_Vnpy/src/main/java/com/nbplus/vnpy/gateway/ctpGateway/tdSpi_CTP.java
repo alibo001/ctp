@@ -1,5 +1,6 @@
 package com.nbplus.vnpy.gateway.ctpGateway;
 
+import com.nbplus.vnpy.common.utils.Text;
 import com.nbplus.vnpy.trader.VtAccountData;
 import com.nbplus.vnpy.trader.VtConstant;
 import com.nbplus.vnpy.trader.VtContractData;
@@ -453,11 +454,37 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         //priceTick合约最小价格TICK
         vtContractData.setPriceTick(pInstrument.getPriceTick());
 
-        System.out.println(vtContractData);
-
-        if(bIsLast){
-
+        // ETF期权的标的命名方式需要调整（ETF代码 + 到期月份）
+        if (VtConstant.EXCHANGE_SSE.equals(vtContractData.getExchange()) || VtConstant.EXCHANGE_SZSE.equals(vtContractData.getExchange())) {
+            vtContractData.setUnderlyingSymbol(pInstrument.getUnderlyingInstrID()+"-"+pInstrument.getExpireDate().substring(2, pInstrument.getExpireDate().length()-2));
+        }
+        // 商品期权无需调整
+        else {
+            vtContractData.setUnderlyingSymbol(pInstrument.getUnderlyingInstrID());
         }
 
+        // 期权类型
+        if (VtConstant.PRODUCT_OPTION.equals(vtContractData.getProductClass())) {
+            if (pInstrument.getOptionsType() == '1') {
+                vtContractData.setOptionType(VtConstant.OPTION_CALL);
+            }else if (pInstrument.getOptionsType() == '2') {
+                vtContractData.setOptionType(VtConstant.OPTION_PUT);
+            }
+        }
+
+        // 缓存代码和交易所的印射关系
+        this.symbolExchangeDict.put(vtContractData.getSymbol(), vtContractData.getExchange());
+        this.symbolSizeDict.put(vtContractData.getSymbol(), vtContractData.getSize());
+
+        // 缓存合约代码和交易所映射  ---- 全局映射关系
+        CtpGlobal.symbolExchangeDict.put(vtContractData.getSymbol(), vtContractData.getExchange());
+
+        // 推送
+        this.gateway.onContract(vtContractData);
+        System.out.println(vtContractData);
+        if(bIsLast) {
+            //为true 合约查询成功
+            logger.warn(Text.CONTRACT_DATA_RECEIVED);
+        }
     }
 }

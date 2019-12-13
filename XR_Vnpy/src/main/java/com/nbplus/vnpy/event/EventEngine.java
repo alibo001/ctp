@@ -130,12 +130,13 @@ public class EventEngine {
             try {
                 //向队列索求  弹出一个事件（有序）
                 Event event = this.queue.poll(1000, TimeUnit.MILLISECONDS);
+                System.out.println("事件类型"+event.getEventType());
                 if (event == null) {
                     //事件为空 跳出本次循环 ，有事件 则进入事件处理方法
                     continue;
                 }
+
                 //处理事件
-                System.out.println("执行处理");
                 this.process(event);
             } catch (Exception e) {
                 e.printStackTrace();
