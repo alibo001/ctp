@@ -1,12 +1,16 @@
 package com.nbplus.vnpy.gateway.ctpGateway;
 
 import com.nbplus.vnpy.trader.VtAccountData;
+import com.nbplus.vnpy.trader.VtConstant;
+import com.nbplus.vnpy.trader.VtContractData;
 import com.nbplus.vnpy.trader.VtPositionData;
 import ctp.thosttraderapi.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
+import javax.sound.midi.Instrument;
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -278,7 +282,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     }
 
     /**
-     * @Description API投资者结算 被调用后  spi结算回报会被执行
+     * @Description API投资者结算（结算在OnRspUserLogin中被调用） 被调用后  spi结算回报会被执行
      * @author gt_vv
      * @date 2019/12/12
      * @param pSettlementInfoConfirm
@@ -304,10 +308,12 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
 
             logger.warn("{}交易接口开始查询投资者信息", logInfo);
             CThostFtdcQryInvestorField pQryInvestor = new CThostFtdcQryInvestorField();
-            pQryInvestor.setInvestorID(userID);
             pQryInvestor.setBrokerID(brokerID);
             reqID++;
-            tdApi.ReqQryInvestor(pQryInvestor, reqID);
+            //查询合约
+            int i = tdApi.ReqQryInvestor(pQryInvestor, reqID);
+            System.out.println(i);
+            pQryInvestor.setInvestorID(userID);
         } catch (Throwable t) {
             logger.error("{}处理结算单确认回报错误", logInfo, t);
             //ctpGatewayImpl.disconnect();
@@ -375,11 +381,20 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     }
 
 
+    /**
+     * @Description 查询指令后，交易托管系统返回 响应时，该方法会被调用
+     * @author gt_vv
+     * @date 2019/12/13
+     * @param pInvestor
+     * @param pRspInfo
+     * @param nRequestID
+     * @param bIsLast
+     * @return void
+     */
     @Override
     public void OnRspQryInvestor(CThostFtdcInvestorField pInvestor, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
 
         try {
-
             if (pRspInfo != null && pRspInfo.getErrorID() != 0) {
                 logger.error("{}查询投资者信息失败 错误ID:{},错误信息:{}", logInfo, pRspInfo.getErrorID(), pRspInfo.getErrorMsg());
                 return;
@@ -394,7 +409,8 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             }
             if (bIsLast) {
                 if (StringUtils.isBlank(investorName)) {
-                    logger.warn("{}交易接口未能获取到投资者名,准备断开", logInfo);
+                    logger.warn("{}" +
+                            ",准备断开", logInfo);
                     return;
                     //ctpGatewayImpl.disconnect();
                 }
@@ -405,11 +421,43 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
                 // 查询所有合约
                 logger.warn("{}交易接口开始查询合约信息", logInfo);
                 CThostFtdcQryInstrumentField cThostFtdcQryInstrumentField = new CThostFtdcQryInstrumentField();
+                //请求查询合约。
                 tdApi.ReqQryInstrument(cThostFtdcQryInstrumentField, reqID);
             }
         } catch (Throwable t) {
             logger.error("{}处理查询投资者回报异常", logInfo, t);
             //ctpGatewayImpl.disconnect();
         }
+    }
+
+    @Override
+    public void OnRspQryInstrument(CThostFtdcInstrumentField pInstrument, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast){
+        if(pInstrument == null){
+            logger.warn("暂无合约信息");
+            return;
+        }
+        VtContractData vtContractData = new VtContractData();
+        //交易所代码
+        vtContractData.setSymbol(pInstrument.getInstrumentID());
+        vtContractData.setExchange(pInstrument.getExchangeID());
+        //vt系统唯一标识
+        vtContractData.setVtSymbol(pInstrument.getInstrumentID()+ "." +pInstrument.getExchangeID());
+        //合约名称
+        vtContractData.setName(pInstrument.getInstrumentName());
+        //到期日
+        vtContractData.setExpiryDate(pInstrument.getExpireDate());
+        //合约类型
+        vtContractData.setProductClass( CtpGlobal.productClassMapReverse.getOrDefault(pInstrument.getProductClass(), VtConstant.PRODUCT_UNKNOWN));
+        //合约大小
+        vtContractData.setSize(pInstrument.getVolumeMultiple());
+        //priceTick合约最小价格TICK
+        vtContractData.setPriceTick(pInstrument.getPriceTick());
+
+        System.out.println(vtContractData);
+
+        if(bIsLast){
+
+        }
+
     }
 }

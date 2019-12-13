@@ -1,0 +1,8 @@
+
+tdApi封装说明,tdSpi重写调用说明
+   封装类：tdSpi_CTP
+
+   封装功能：                        封装方法: tdSpi_CTP.java        用法：
+      连接CTP                         connect()                       控制层调用
+      查询投资者账户信息              queryAccount()                  控制层调用/在投资者登录后调用回报OnRspUserLogin()中调用此方法
+      查询合约                        API:ReqQryInvestor()            控制层调用/在投资者登录后调用回报OnRspUserLogin()中调用此方法，并放到全局映射关系中（map中）

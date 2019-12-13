@@ -127,4 +127,21 @@ public class VtContractData extends VtBaseData {
 		this.expiryDate = expiryDate;
 	}
 
+
+	@Override
+	public String toString() {
+		return "VtContractData{" +
+				"symbol='" + symbol + '\'' +
+				", exchange='" + exchange + '\'' +
+				", vtSymbol='" + vtSymbol + '\'' +
+				", name='" + name + '\'' +
+				", productClass='" + productClass + '\'' +
+				", size=" + size +
+				", priceTick=" + priceTick +
+				", strikePrice=" + strikePrice +
+				", underlyingSymbol='" + underlyingSymbol + '\'' +
+				", optionType='" + optionType + '\'' +
+				", expiryDate='" + expiryDate + '\'' +
+				'}';
+	}
 }
