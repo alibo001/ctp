@@ -84,11 +84,10 @@ public class CtpGateway extends VtGateway {
         String mdAddress;
         String authCode;
         String userProductInfo;
-        //8001001385   wwy123zxq@    4500    101.200.144.24:41313
+
         // 创建行情和交易接口对象
         //this.mdSpi.connect("153145", "Gongtan123", "9999", "tcp://180.168.146.187:10131");
         // 真实 服务器
-        //this.mdSpi.connect("8001001385", "wwy123zxq@", "4500", "tcp://101.200.144.24:41313");
         //tcp://180.168.146.187:10131   7*24 模拟环境
         //tcp://180.168.146.187:10110   真实环境
         this.tdSpi.connect("153145","Gongtan123","9999","tcp://218.202.237.33 :10102","0000000000000000","simnow_client_test");
