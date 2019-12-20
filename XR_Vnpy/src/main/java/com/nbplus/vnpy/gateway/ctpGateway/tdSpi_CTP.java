@@ -1,10 +1,7 @@
 package com.nbplus.vnpy.gateway.ctpGateway;
 
 import com.nbplus.vnpy.common.utils.Text;
-import com.nbplus.vnpy.trader.VtAccountData;
-import com.nbplus.vnpy.trader.VtConstant;
-import com.nbplus.vnpy.trader.VtContractData;
-import com.nbplus.vnpy.trader.VtPositionData;
+import com.nbplus.vnpy.trader.*;
 import ctp.thosttraderapi.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -574,7 +571,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
 
             } else {
                 vtPositionData.setPosition(vtPositionData.getPosition() + pInvestorPosition.getPosition());
-
+                //vtPositionData.getDirection()   2 == 多       3 == 空
                 if (vtPositionData.getDirection() == "2") {
                     vtPositionData.setFrozen(vtPositionData.getFrozen() + pInvestorPosition.getShortFrozen());
                 } else {
@@ -582,6 +579,145 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
                 }
             }
         }
+        //ePosition 持仓推送事件引擎
+        this.gateway.onPosition(vtPositionData);
         System.out.println(vtPositionData);
+        if(bIsLast == true){
+            logger.warn("持仓信息查询完成");
+        }
     }
+
+
+    /**
+     * @Description  发单
+     * @author gt_vv
+     * @date 2019/12/18
+     * @param orderReq
+     * @return java.lang.String
+     */
+    public String submitOrder(VtOrderReq orderReq) {
+        if(tdApi == null){
+            logger.warn("{}交易接口尚未初始化,无法发单", logInfo);
+        }
+        if (!loginStatus) {
+            logger.warn("{}交易接口尚未登录,无法发单", logInfo);
+            return null;
+        }
+        //封装发单所需参数  CThostFtdcInputOrderField
+        try{
+            orderRef++;
+            CThostFtdcInputOrderField cThostFtdcInputOrderField = new CThostFtdcInputOrderField();
+            //经济公司代码
+            cThostFtdcInputOrderField.setBrokerID(brokerID);
+            //合约代码   各交易所不一致
+            cThostFtdcInputOrderField.setInstrumentID(orderReq.getSymbol());
+            //价格
+            cThostFtdcInputOrderField.setLimitPrice(orderReq.getPrice());
+            //报单数量
+            cThostFtdcInputOrderField.setVolumeTotalOriginal(orderReq.getVolume());
+            //报单价格条件
+            cThostFtdcInputOrderField.setOrderPriceType(orderReq.getPriceType().charAt(0));
+            //买卖方向
+            cThostFtdcInputOrderField.setDirection(orderReq.getDirection().charAt(0));
+
+
+            //  特别说明： 开平标志   投机套保标志
+            //      THOST_FTDC_OF_Open是开仓，THOST_FTDC_OF_Close是平仓/平昨，THOST_FTDC_OF_CloseToday是平今。
+            //      除了上期所/能源中心外，不区分平今平昨，平仓统一使用THOST_FTDC_OF_Close。
+
+
+            //组合开平标志
+            cThostFtdcInputOrderField.setCombOffsetFlag(orderReq.getOffset());
+            //投机套保标志
+            cThostFtdcInputOrderField.setCombHedgeFlag(orderReq.getHedge());
+            //报单请求编号  此编号为递增
+            cThostFtdcInputOrderField.setOrderRef(Integer.toString(orderRef));
+            //用户ID
+            cThostFtdcInputOrderField.setInvestorID(userID);
+            cThostFtdcInputOrderField.setUserID(userID);
+            //交易所
+            cThostFtdcInputOrderField.setExchangeID(orderReq.getExchange());
+
+            //组合投机套保标志
+            cThostFtdcInputOrderField.setCombHedgeFlag(String.valueOf(thosttradeapiConstants.THOST_FTDC_HF_Speculation));
+            //触发条件
+            cThostFtdcInputOrderField.setContingentCondition(thosttradeapiConstants.THOST_FTDC_CC_Immediately);
+            //强平原因
+            cThostFtdcInputOrderField.setForceCloseReason(thosttradeapiConstants.THOST_FTDC_FCC_NotForceClose);
+            //自动挂起标志
+            cThostFtdcInputOrderField.setIsAutoSuspend(0);
+            //有效期类型
+            /**TimeCondition是枚举类型，
+             * 目前只有THOST_FTDC_TC_GFD和THOST_FTDC_TC_IOC这两种类型有用。
+             * GFD是指当日有效，报单会挂在交易所直到成交或收盘自动撤销。
+             * IOC是立即完成否则撤销，和VolumeCondition、MinVolume 字段配合用于设置FAK或FOK
+             */
+            cThostFtdcInputOrderField.setTimeCondition(thosttradeapiConstants.THOST_FTDC_TC_GFD);
+            //成交量类型
+            cThostFtdcInputOrderField.setVolumeCondition(thosttradeapiConstants.THOST_FTDC_VC_AV);
+            //最小成交量
+            cThostFtdcInputOrderField.setMinVolume(1);
+
+            /**      报单：priceType 的传参需求
+             *   字段          \       普通            \     FAK                                  \                FOK
+             * ----------------\-----------------------\------------------------------------------\------------------------------
+             * TimeCondition   \    THOST_FTDC_TC_GFD  \   THOST_FTDC_TC_IOC                      \          THOST_FTDC_TC_IOC
+             * ----------------\-----------------------\------------------------------------------\----------------------------
+             * VolumeCondition \   THOST_FTDC_VC_AV    \    THOST_FTDC_VC_AV/THOST_FTDC_VC_MV     \          THOST_FTDC_VC_CV
+             *-----------------\-----------------------\------------------------------------------\--------------------------
+             * MinVolume       \   不需要填            \    如果VolumeCondition为THOST_FTDC_VC_AV \         不需要填
+             *                 \                       \   则不需要填。如果为THOST_FTDC_VC_MV，   \
+             *                 \                       \  则设为要求的最小成交的手数              \
+             */
+            //判断 FAK  FOK   普通单
+            if(PriceTypeEnum.FAK .toString()== orderReq.getPriceType()){
+                cThostFtdcInputOrderField.setOrderPriceType(thosttradeapiConstants.THOST_FTDC_OPT_LimitPrice);
+                cThostFtdcInputOrderField.setTimeCondition(thosttradeapiConstants.THOST_FTDC_TC_IOC);
+                cThostFtdcInputOrderField.setVolumeCondition(thosttradeapiConstants.THOST_FTDC_VC_AV);
+            }else if (PriceTypeEnum.FOK.toString() == orderReq.getPriceType()) {
+                cThostFtdcInputOrderField.setOrderPriceType(thosttradeapiConstants.THOST_FTDC_OPT_LimitPrice);
+                cThostFtdcInputOrderField.setTimeCondition(thosttradeapiConstants.THOST_FTDC_TC_IOC);
+                cThostFtdcInputOrderField.setVolumeCondition(thosttradeapiConstants.THOST_FTDC_VC_CV);
+            }
+
+            reqID++;
+            tdApi.ReqOrderInsert(cThostFtdcInputOrderField,reqID);
+            return String.valueOf(orderRef);
+        }catch (Exception e){
+            logger.error("{}交易接口发单错误", logInfo, e);
+            return null;
+        }
+    }
+
+
+    // 发单错误（柜台）
+    /**
+     * @Description  发单 回报
+     * @author gt_vv
+     * @date 2019/12/20
+     * @param pInputOrder
+     * @param pRspInfo
+     * @param nRequestID
+     * @param bIsLast
+     * @return void
+     */
+    @Override
+    public void OnRspOrderInsert(CThostFtdcInputOrderField pInputOrder, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
+        try {
+            if(pInputOrder != null){
+                VtOrderData vtOrderData = new VtOrderData();
+                vtOrderData.setFrontID(frontID);
+                vtOrderData.setSessionID(sessionID);
+                vtOrderData.setExchange(pInputOrder.getExchangeID());
+
+                // TODO 报单回报待完成
+                //vtOrderData.setOffset(pInputOrder.get);
+            }
+        } catch (Throwable t) {
+            logger.error("{}处理交易接口发单错误回报(柜台)异常", logInfo, t);
+        }
+
+    }
+
+
 }

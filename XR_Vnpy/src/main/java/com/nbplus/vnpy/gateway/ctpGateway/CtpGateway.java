@@ -4,6 +4,7 @@ package com.nbplus.vnpy.gateway.ctpGateway;
 import com.nbplus.vnpy.event.EventEngine;
 import com.nbplus.vnpy.trader.VtConstant;
 import com.nbplus.vnpy.trader.VtGateway;
+import com.nbplus.vnpy.trader.VtOrderReq;
 import com.nbplus.vnpy.trader.VtSubscribeReq;
 
 /**
@@ -90,7 +91,7 @@ public class CtpGateway extends VtGateway {
         // 真实 服务器
         //tcp://180.168.146.187:10131   7*24 模拟环境
         //tcp://180.168.146.187:10110   真实环境
-        this.tdSpi.connect("153145","Gongtan123","9999","tcp://180.168.146.187:10130","0000000000000000","simnow_client_test");
+        this.tdSpi.connect("153145","Gongtan123","9999","tcp://218.202.237.33 :10102","0000000000000000","simnow_client_test");
         //tcp://180.168.146.187:10130  7*24交易CTP
         //tcp://218.202.237.33 :10102  simnow 实时行情
     }
@@ -98,6 +99,18 @@ public class CtpGateway extends VtGateway {
     @Override
     public void subscribe(VtSubscribeReq subscribeReq) {
         this.mdSpi.subscribe(subscribeReq);
+    }
+
+    //报单
+    @Override
+    public void sendOrder(VtOrderReq orderReq) {
+
+    }
+
+    //持仓
+    @Override
+    public void qryPosition() {
+        this.tdSpi.queryPosition();
     }
 
     /**

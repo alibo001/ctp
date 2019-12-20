@@ -139,7 +139,7 @@ public abstract class VtGateway {
     abstract public void subscribe(VtSubscribeReq subscribeReq);
     
     // 发单
-    //abstract public void sendOrder(VtOrderReq orderReq);
+    abstract public void sendOrder(VtOrderReq orderReq);
     
     // 撤单
     //abstract public void cancelOrder(VtCancelOrderReq cancelOrderReq);
@@ -148,7 +148,7 @@ public abstract class VtGateway {
     //abstract public void qryAccount();
     
     // 查询持仓
-    //abstract public void qryPosition();
+    abstract public void qryPosition();
     
     // 查询历史
     //abstract public void qryHistory(VtHistoryReq historyReq);

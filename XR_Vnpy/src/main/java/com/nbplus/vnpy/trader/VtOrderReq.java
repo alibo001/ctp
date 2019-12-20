@@ -10,7 +10,8 @@ public class VtOrderReq {
 
 	private String priceType; // 价格类型
 	private String direction; // 买卖
-	private String offset; // 开平
+	private String offset; // 开平标志
+	private String hedge; //投机套保标志
 
 	// 以下为IB相关
 	private String productClass; // 合约类型
@@ -20,8 +21,15 @@ public class VtOrderReq {
 	private String optionType; // 期权类型
 	private String lastTradeDateOrContractMonth; // 合约月,IB专用
 	private String multiplier; // 乘数,IB专用
-	
-	
+
+	//-------------------------GET---&---SET-------------------------------------------------
+
+	public String getHedge() {
+		return hedge;
+	}
+	public void setHedge(String hedge) {
+		this.hedge = hedge;
+	}
 	public String getSymbol() {
 		return symbol;
 	}
