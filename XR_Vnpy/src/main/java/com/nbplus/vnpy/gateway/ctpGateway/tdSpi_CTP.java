@@ -125,7 +125,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
 
             // 初始化连接，成功会调用onFrontConnected
             this.tdApi.Init();
-            this.tdApi.Join();
+            //this.tdApi.Join();
         }
         // 若已经连接但尚未登录，则进行登录
         else {
@@ -709,15 +709,18 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
                 vtOrderData.setFrontID(frontID);
                 vtOrderData.setSessionID(sessionID);
                 vtOrderData.setExchange(pInputOrder.getExchangeID());
-
-                // TODO 报单回报待完成
-                //vtOrderData.setOffset(pInputOrder.get);
+                vtOrderData.setOrderID(pInputOrder.getOrderRef());
+                vtOrderData.setOffset(pInputOrder.getCombOffsetFlag());
+                orderRef = Integer.parseInt(pInputOrder.getOrderRef());
+                vtOrderData.setVtOrderID(gatewayName  + orderRef);
+                vtOrderData.setDirection(String.valueOf(pInputOrder.getDirection()));
+                vtOrderData.setPrice(pInputOrder.getLimitPrice());
+                vtOrderData.setTotalVolume(pInputOrder.getVolumeTotalOriginal());
+                System.out.println(vtOrderData);
             }
         } catch (Throwable t) {
             logger.error("{}处理交易接口发单错误回报(柜台)异常", logInfo, t);
         }
 
     }
-
-
 }

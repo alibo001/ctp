@@ -115,4 +115,25 @@ public class VtOrderData extends VtBaseData{
 	public void setSessionID(int sessionID) {
 		this.sessionID = sessionID;
 	}
+
+	@Override
+	public String toString() {
+		return "VtOrderData{" +
+				"symbol='" + symbol + '\'' +
+				", exchange='" + exchange + '\'' +
+				", vtSymbol='" + vtSymbol + '\'' +
+				", orderID='" + orderID + '\'' +
+				", vtOrderID='" + vtOrderID + '\'' +
+				", direction='" + direction + '\'' +
+				", offset='" + offset + '\'' +
+				", price=" + price +
+				", totalVolume=" + totalVolume +
+				", tradedVolume=" + tradedVolume +
+				", status='" + status + '\'' +
+				", orderTime='" + orderTime + '\'' +
+				", cancelTime='" + cancelTime + '\'' +
+				", frontID=" + frontID +
+				", sessionID=" + sessionID +
+				'}';
+	}
 }

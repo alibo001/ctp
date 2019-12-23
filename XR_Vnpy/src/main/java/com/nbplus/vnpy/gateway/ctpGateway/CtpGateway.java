@@ -54,6 +54,7 @@ public class CtpGateway extends VtGateway {
      */
     public CtpGateway(EventEngine eventEngine, String gatewayName) {
         super(eventEngine, gatewayName);
+        eventEngine.start();
         //行情Api
         mdSpi = new mdSpi_CTP(this);
         tdSpi = new tdSpi_CTP(this);
@@ -87,13 +88,14 @@ public class CtpGateway extends VtGateway {
         String userProductInfo;
 
         // 创建行情和交易接口对象
-        //this.mdSpi.connect("153145", "Gongtan123", "9999", "tcp://180.168.146.187:10131");
+        this.tdSpi.connect("153145","Gongtan123","9999","tcp://180.168.146.187:10130","0000000000000000","simnow_client_test");
+        //tcp://180.168.146.187:10130  7*24交易CTP
+        //tcp://218.202.237.33 :10102  simnow 实时行情
+        this.mdSpi.connect("153145", "Gongtan123", "9999", "tcp://180.168.146.187:10131");
         // 真实 服务器
         //tcp://180.168.146.187:10131   7*24 模拟环境
         //tcp://180.168.146.187:10110   真实环境
-        this.tdSpi.connect("153145","Gongtan123","9999","tcp://218.202.237.33 :10102","0000000000000000","simnow_client_test");
-        //tcp://180.168.146.187:10130  7*24交易CTP
-        //tcp://218.202.237.33 :10102  simnow 实时行情
+
     }
     // 订阅行情
     @Override
@@ -104,7 +106,7 @@ public class CtpGateway extends VtGateway {
     //报单
     @Override
     public void sendOrder(VtOrderReq orderReq) {
-
+        this.tdSpi.submitOrder(orderReq);
     }
 
     //持仓
