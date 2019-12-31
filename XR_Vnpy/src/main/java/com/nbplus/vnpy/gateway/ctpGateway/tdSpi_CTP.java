@@ -3,6 +3,7 @@ package com.nbplus.vnpy.gateway.ctpGateway;
 import com.nbplus.vnpy.common.utils.Text;
 import com.nbplus.vnpy.trader.*;
 import ctp.thosttraderapi.*;
+import lombok.experimental.var;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Description
@@ -50,13 +52,16 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     private int frontID; // 前置机编号
     private int sessionID; // 会话编号
 
-
-    private Map<String, VtPositionData> posDict;    //持仓缓存   vt系统唯一编码为key
-    private Map<String, String> symbolExchangeDict; // 保存合约代码和交易所的印射关系
-    private Map<String, Integer> symbolSizeDict; // 保存合约代码和合约大小的印射关系
+    //持仓缓存   vt系统唯一编码为key
+    private Map<String, VtPositionData> posDict;
+    // 保存合约代码和交易所的印射关系
+    private Map<String, String> symbolExchangeDict;
+    // 保存合约代码和合约大小的印射关系
+    private Map<String, Integer> symbolSizeDict;
 
     private boolean requireAuthentication;
 
+    //交易API实例
     private CThostFtdcTraderApi tdApi;
 
     /**
@@ -178,7 +183,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             req.setUserProductInfo(this.userProductInfo);
             this.reqID += 1;
             logger.warn("交易接口申请验证");
-            int i = this.tdApi.ReqAuthenticate(req, this.reqID);
+            this.tdApi.ReqAuthenticate(req, this.reqID);
             logger.warn("交易接口发送登录请求成功");
         }
     }
@@ -310,8 +315,8 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             pQryInvestor.setBrokerID(brokerID);
             reqID++;
             //查询合约
-            int i = tdApi.ReqQryInvestor(pQryInvestor, reqID);
-            System.out.println(i);
+            int i = tdApi.ReqQryInvestor( pQryInvestor, reqID);
+            logger.warn("{}API投资者结算API状态返回：" + i,logInfo);
             pQryInvestor.setInvestorID(userID);
         } catch (Throwable t) {
             logger.error("{}处理结算单确认回报错误", logInfo, t);
@@ -562,7 +567,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         } else {
             vtPositionData.setFrozen(pInvestorPosition.getLongFrozen());
         }
-    //TODO 持仓功能未完成
+        //TODO 持仓功能未完成
         // 针对上期所、上期能源持仓的今昨分条返回（有昨仓、无今仓）,读取昨仓数据
         if(VtConstant.EXCHANGE_INE == vtPositionData.getExchange() || VtConstant.EXCHANGE_SHFE == vtPositionData.getExchange()){
             if (pInvestorPosition.getYdPosition() > 0 && pInvestorPosition.getTodayPosition() == 0) {
@@ -616,9 +621,20 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             //报单数量
             cThostFtdcInputOrderField.setVolumeTotalOriginal(orderReq.getVolume());
             //报单价格条件
-            cThostFtdcInputOrderField.setOrderPriceType(orderReq.getPriceType().charAt(0));
-            //买卖方向
-            cThostFtdcInputOrderField.setDirection(orderReq.getDirection().charAt(0));
+            if(orderReq.getPriceType() == "1"){
+                //市价单
+                cThostFtdcInputOrderField.setOrderPriceType(thosttradeapiConstants.THOST_FTDC_OPT_AnyPrice);
+            }else{
+                //限价单
+                cThostFtdcInputOrderField.setOrderPriceType(thosttradeapiConstants.THOST_FTDC_OPT_LimitPrice);
+            }
+            if(orderReq.getDirection().equals("1")){
+                //买卖方向  多
+                cThostFtdcInputOrderField.setDirection(thosttradeapiConstants.THOST_FTDC_D_Buy);
+            }else{
+                //买卖方向  空
+                cThostFtdcInputOrderField.setDirection(thosttradeapiConstants.THOST_FTDC_D_Sell);
+            }
 
 
             //  特别说明： 开平标志   投机套保标志
@@ -627,7 +643,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
 
 
             //组合开平标志
-            cThostFtdcInputOrderField.setCombOffsetFlag(orderReq.getOffset());
+            cThostFtdcInputOrderField.setCombOffsetFlag(String.valueOf(thosttradeapiConstants.THOST_FTDC_OF_Open));
             //投机套保标志
             cThostFtdcInputOrderField.setCombHedgeFlag(orderReq.getHedge());
             //报单请求编号  此编号为递增
@@ -637,12 +653,11 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             cThostFtdcInputOrderField.setUserID(userID);
             //交易所
             cThostFtdcInputOrderField.setExchangeID(orderReq.getExchange());
-
             //组合投机套保标志
             cThostFtdcInputOrderField.setCombHedgeFlag(String.valueOf(thosttradeapiConstants.THOST_FTDC_HF_Speculation));
             //触发条件
             cThostFtdcInputOrderField.setContingentCondition(thosttradeapiConstants.THOST_FTDC_CC_Immediately);
-            //强平原因
+            //强平原因   必填  THOST_FTDC_FCC_NotForceClose
             cThostFtdcInputOrderField.setForceCloseReason(thosttradeapiConstants.THOST_FTDC_FCC_NotForceClose);
             //自动挂起标志
             cThostFtdcInputOrderField.setIsAutoSuspend(0);
@@ -681,7 +696,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             }
 
             reqID++;
-            tdApi.ReqOrderInsert(cThostFtdcInputOrderField,reqID);
+            tdApi.ReqOrderInsert(cThostFtdcInputOrderField, reqID);
             return String.valueOf(orderRef);
         }catch (Exception e){
             logger.error("{}交易接口发单错误", logInfo, e);
@@ -708,6 +723,8 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
                 VtOrderData vtOrderData = new VtOrderData();
                 vtOrderData.setFrontID(frontID);
                 vtOrderData.setSessionID(sessionID);
+                vtOrderData.setSymbol(pInputOrder.getInstrumentID());
+                vtOrderData.setVtSymbol(pInputOrder.getInstrumentID()+"."+pInputOrder.getExchangeID());
                 vtOrderData.setExchange(pInputOrder.getExchangeID());
                 vtOrderData.setOrderID(pInputOrder.getOrderRef());
                 vtOrderData.setOffset(pInputOrder.getCombOffsetFlag());
@@ -721,6 +738,56 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         } catch (Throwable t) {
             logger.error("{}处理交易接口发单错误回报(柜台)异常", logInfo, t);
         }
+    }
 
+    /**
+     * @Description  委托回报
+     * @author gt_vv
+     * @date 2019/12/24
+     * @param pOrder
+     * @return void
+     */
+    @Override
+    public void OnRtnOrder(CThostFtdcOrderField pOrder) {
+        //更新最新的报单编号
+        String newRef = pOrder.getOrderRef().replace(" ", "");
+        orderRef = Integer.parseInt(newRef);
+        //合约代码VolumeTotal
+        System.out.println("剩余数量"+pOrder.getVolumeTotal());
+        String symbol = pOrder.getInstrumentID();
+        System.out.println(pOrder.getStatusMsg());
+        /*
+         * CTP的报单号一致性维护需要基于frontID, sessionID, orderID三个字段
+         * 但在本接口设计中,已经考虑了CTP的OrderRef的自增性,避免重复 唯一可能出现OrderRef重复的情况是多处登录并在非常接近的时间内（几乎同时发单
+         */
+        // 无法获取账户信息,使用userId作为账户ID
+        String accountCode = userID;
+        //DirectionEnum direction = CtpConstant.directionMapReverse.getOrDefault(pOrder.getDirection(), DirectionEnum.UNKNOWN_DIRECTION);
+    }
+
+    /**
+     * @Description 成交回报    如有成交则会单独回调OnRtnTrade函数
+     * @author gt_vv
+     * @date 2019/12/24
+     * @param pTrade
+     * @return void
+     */
+    @Override
+    public void OnRtnTrade(CThostFtdcTradeField pTrade) {
+        System.out.println("成交");
+    }
+
+    // 发单错误回报（交易所）
+    @Override
+    public void OnErrRtnOrderInsert(CThostFtdcInputOrderField pInputOrder, CThostFtdcRspInfoField pRspInfo) {
+        VtOrderData vtOrderData = new VtOrderData();
+        if(pInputOrder != null){
+            vtOrderData.setVtSymbol(pInputOrder.getInstrumentID()+ pInputOrder.getExchangeID());
+            vtOrderData.setSymbol(pInputOrder.getInstrumentID());
+            vtOrderData.setFrontID(frontID);
+            vtOrderData.setSessionID(sessionID);
+            vtOrderData.setVtOrderID(gatewayName  + orderRef);
+        }
+        logger.error("{}交易接口发单错误回报（交易所） 错误ID:{},错误信息:{}", logInfo, pRspInfo.getErrorID(), pRspInfo.getErrorMsg());
     }
 }

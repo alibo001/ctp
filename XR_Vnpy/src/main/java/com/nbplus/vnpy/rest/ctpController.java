@@ -4,6 +4,7 @@ import com.nbplus.vnpy.event.EventEngine;
 import com.nbplus.vnpy.gateway.ctpGateway.CtpGateway;
 import com.nbplus.vnpy.trader.VtGateway;
 import com.nbplus.vnpy.trader.VtOrderReq;
+import ctp.thosttraderapi.thosttradeapiConstants;
 import jdk.nashorn.internal.ir.annotations.Reference;
 import lombok.experimental.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,18 +27,25 @@ public class ctpController {
 
     @PostMapping("/order")
     public void order(){
-        System.out.println(111111);
         VtOrderReq vtOrderReq = new VtOrderReq();
-        vtOrderReq.setDirection("2");
-        vtOrderReq.setSymbol("m2005");
-        vtOrderReq.setExchange("DCE");
-        vtOrderReq.setVtSymbol("m2005.DCE");
-        vtOrderReq.setPrice(2741);
+        vtOrderReq.setDirection("1");
+        vtOrderReq.setSymbol("MA001");
+        vtOrderReq.setExchange("CZCE");
+        vtOrderReq.setVtSymbol("MA001.CZCE");
+        vtOrderReq.setVolume(10);
+        //THOST_FTDC_OPT_LimitPrice（限价）和THOST_FTDC_OPT_AnyPrice（市价）
+        vtOrderReq.setPriceType("FOK");
+        vtOrderReq.setPrice(2111);
         ctpGateway.sendOrder(vtOrderReq);
     }
 
     @PostMapping("/con")
     public void con(){
         ctpGateway.connect();
+    }
+
+    @PostMapping("queryPosition")
+    public void queryPosition(){
+        ctpGateway.qryPosition();
     }
 }
