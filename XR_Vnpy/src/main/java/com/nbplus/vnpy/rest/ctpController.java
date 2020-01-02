@@ -67,7 +67,7 @@ public class ctpController {
         vtOrderReq.setVtSymbol("MA001.CZCE");
         vtOrderReq.setVolume(1);
         //THOST_FTDC_OPT_LimitPrice（限价）和THOST_FTDC_OPT_AnyPrice（市价）
-        vtOrderReq.setPriceType("FAK");
+        //vtOrderReq.setPriceType("FAK");
         vtOrderReq.setPrice(2088);
         ctpGateway.sendOrder(vtOrderReq);
     }

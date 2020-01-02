@@ -664,6 +664,8 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             cThostFtdcInputOrderField.setVolumeCondition(thosttradeapiConstants.THOST_FTDC_VC_AV);
             //最小成交量
             cThostFtdcInputOrderField.setMinVolume(1);
+            //
+            cThostFtdcInputOrderField.setOrderPriceType(thosttradeapiConstants.THOST_FTDC_OPT_LimitPrice);
 
             /**      报单：priceType 的传参需求
              *   字段          \       普通            \     FAK                                  \                FOK
@@ -721,7 +723,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
                 vtOrderData.setOrderID(pInputOrder.getOrderRef());
                 vtOrderData.setOffset(pInputOrder.getCombOffsetFlag());
                 orderRef = Integer.parseInt(pInputOrder.getOrderRef());
-                vtOrderData.setVtOrderID(gatewayName  + orderRef);
+                vtOrderData.setVtOrderID(gatewayName  + "." + orderRef);
                 vtOrderData.setDirection(String.valueOf(pInputOrder.getDirection()));
                 vtOrderData.setPrice(pInputOrder.getLimitPrice());
                 vtOrderData.setTotalVolume(pInputOrder.getVolumeTotalOriginal());
