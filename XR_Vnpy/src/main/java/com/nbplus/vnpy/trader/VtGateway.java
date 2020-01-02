@@ -140,9 +140,11 @@ public abstract class VtGateway {
     
     // 发单
     abstract public void sendOrder(VtOrderReq orderReq);
+
+    abstract public void unsubscribe(String symbol);
     
     // 撤单
-    //abstract public void cancelOrder(VtCancelOrderReq cancelOrderReq);
+    abstract public void cancelOrder(VtCancelOrderReq cancelOrderReq);
 
     // 查询账户资金
     //abstract public void qryAccount();
@@ -190,6 +192,6 @@ public abstract class VtGateway {
 	public void setGatewayType(String gatewayType) {
 		this.gatewayType = gatewayType;
 	}
-	
-	
+
+
 }

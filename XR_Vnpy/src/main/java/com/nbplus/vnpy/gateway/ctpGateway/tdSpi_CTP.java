@@ -620,14 +620,6 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             cThostFtdcInputOrderField.setLimitPrice(orderReq.getPrice());
             //报单数量
             cThostFtdcInputOrderField.setVolumeTotalOriginal(orderReq.getVolume());
-            //报单价格条件
-            if(orderReq.getPriceType() == "1"){
-                //市价单
-                cThostFtdcInputOrderField.setOrderPriceType(thosttradeapiConstants.THOST_FTDC_OPT_AnyPrice);
-            }else{
-                //限价单
-                cThostFtdcInputOrderField.setOrderPriceType(thosttradeapiConstants.THOST_FTDC_OPT_LimitPrice);
-            }
             if(orderReq.getDirection().equals("1")){
                 //买卖方向  多
                 cThostFtdcInputOrderField.setDirection(thosttradeapiConstants.THOST_FTDC_D_Buy);
@@ -635,17 +627,13 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
                 //买卖方向  空
                 cThostFtdcInputOrderField.setDirection(thosttradeapiConstants.THOST_FTDC_D_Sell);
             }
-
-
-            //  特别说明： 开平标志   投机套保标志
-            //      THOST_FTDC_OF_Open是开仓，THOST_FTDC_OF_Close是平仓/平昨，THOST_FTDC_OF_CloseToday是平今。
-            //      除了上期所/能源中心外，不区分平今平昨，平仓统一使用THOST_FTDC_OF_Close。
-
-
-            //组合开平标志
+            /**
+             * 组合开平标志  THOST_FTDC_OF_Open是开仓
+             * THOST_FTDC_OF_Close是平仓/平昨，
+             * THOST_FTDC_OF_CloseToday是平今。
+             * 除了上期所/能源中心外，不区分平今平昨，平仓统一使用THOST_FTDC_OF_Close。
+             */
             cThostFtdcInputOrderField.setCombOffsetFlag(String.valueOf(thosttradeapiConstants.THOST_FTDC_OF_Open));
-            //投机套保标志
-            cThostFtdcInputOrderField.setCombHedgeFlag(orderReq.getHedge());
             //报单请求编号  此编号为递增
             cThostFtdcInputOrderField.setOrderRef(Integer.toString(orderRef));
             //用户ID
@@ -655,7 +643,11 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             cThostFtdcInputOrderField.setExchangeID(orderReq.getExchange());
             //组合投机套保标志
             cThostFtdcInputOrderField.setCombHedgeFlag(String.valueOf(thosttradeapiConstants.THOST_FTDC_HF_Speculation));
-            //触发条件
+            /**
+             * 触发条件  -- 立即有效
+             * THOST_FTDC_CC_Touch和THOST_FTDC_CC_TouchProfit是止损止盈单，需要交易所支持才能填。
+             * THOST_FTDC_CC_ParkedOrder是预埋单。预埋单是指预埋在CTP服务端，需要非交易时间报入，开市后自动报往交易所。
+             */
             cThostFtdcInputOrderField.setContingentCondition(thosttradeapiConstants.THOST_FTDC_CC_Immediately);
             //强平原因   必填  THOST_FTDC_FCC_NotForceClose
             cThostFtdcInputOrderField.setForceCloseReason(thosttradeapiConstants.THOST_FTDC_FCC_NotForceClose);
@@ -685,11 +677,11 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
              *                 \                       \  则设为要求的最小成交的手数              \
              */
             //判断 FAK  FOK   普通单
-            if(PriceTypeEnum.FAK .toString()== orderReq.getPriceType()){
+            if(PriceTypeEnum.FAK .toString().equals(orderReq.getPriceType())){
                 cThostFtdcInputOrderField.setOrderPriceType(thosttradeapiConstants.THOST_FTDC_OPT_LimitPrice);
                 cThostFtdcInputOrderField.setTimeCondition(thosttradeapiConstants.THOST_FTDC_TC_IOC);
                 cThostFtdcInputOrderField.setVolumeCondition(thosttradeapiConstants.THOST_FTDC_VC_AV);
-            }else if (PriceTypeEnum.FOK.toString() == orderReq.getPriceType()) {
+            }else if (PriceTypeEnum.FOK.toString().equals(orderReq.getPriceType())) {
                 cThostFtdcInputOrderField.setOrderPriceType(thosttradeapiConstants.THOST_FTDC_OPT_LimitPrice);
                 cThostFtdcInputOrderField.setTimeCondition(thosttradeapiConstants.THOST_FTDC_TC_IOC);
                 cThostFtdcInputOrderField.setVolumeCondition(thosttradeapiConstants.THOST_FTDC_VC_CV);
@@ -733,7 +725,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
                 vtOrderData.setDirection(String.valueOf(pInputOrder.getDirection()));
                 vtOrderData.setPrice(pInputOrder.getLimitPrice());
                 vtOrderData.setTotalVolume(pInputOrder.getVolumeTotalOriginal());
-                System.out.println(vtOrderData);
+                System.out.println("柜台返回：" + vtOrderData);
             }
         } catch (Throwable t) {
             logger.error("{}处理交易接口发单错误回报(柜台)异常", logInfo, t);
@@ -750,16 +742,30 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     @Override
     public void OnRtnOrder(CThostFtdcOrderField pOrder) {
         //更新最新的报单编号
-        String newRef = pOrder.getOrderRef().replace(" ", "");
-        orderRef = Integer.parseInt(newRef);
-        //合约代码VolumeTotal
-        System.out.println("剩余数量"+pOrder.getVolumeTotal());
-        String symbol = pOrder.getInstrumentID();
-        System.out.println(pOrder.getStatusMsg());
-        /*
-         * CTP的报单号一致性维护需要基于frontID, sessionID, orderID三个字段
-         * 但在本接口设计中,已经考虑了CTP的OrderRef的自增性,避免重复 唯一可能出现OrderRef重复的情况是多处登录并在非常接近的时间内（几乎同时发单
-         */
+        VtOrderData vtOrderData = new VtOrderData();
+        vtOrderData.setSymbol(pOrder.getInstrumentID());
+        vtOrderData.setOrderID(pOrder.getOrderRef());
+        vtOrderData.setExchange(pOrder.getExchangeID());
+        vtOrderData.setVtOrderID(gatewayName + "."+pOrder.getOrderRef());
+        vtOrderData.setVtSymbol(pOrder.getInstrumentID()+"."+pOrder.getExchangeID());
+        vtOrderData.setDirection(String.valueOf(pOrder.getDirection()));
+        vtOrderData.setFrontID(pOrder.getFrontID());
+        vtOrderData.setSessionID(pOrder.getSessionID());
+        System.out.println("THOST_FTDC_OSS_Accepted" + thosttradeapiConstants.THOST_FTDC_OSS_Accepted);
+        System.out.println("THOST_FTDC_OST_AllTraded" + thosttradeapiConstants.THOST_FTDC_OST_AllTraded);
+        System.out.println("THOST_FTDC_OST_Canceled" + thosttradeapiConstants.THOST_FTDC_OST_Canceled);
+        char orderSubmitStatus = pOrder.getOrderSubmitStatus();
+        System.out.println("pOrder.getOrderSubmitStatus()==="+orderSubmitStatus);
+        vtOrderData.setStatus(String.valueOf(pOrder.getOrderStatus()));
+        vtOrderData.setTradedVolume(pOrder.getVolumeTraded());
+        vtOrderData.setTotalVolume(pOrder.getVolumeTotal());
+        vtOrderData.setOrderTime(pOrder.getActiveTime());
+        vtOrderData.setCancelTime(pOrder.getCancelTime());
+        vtOrderData.setPrice(pOrder.getLimitPrice());
+        System.out.println(vtOrderData);
+
+        logger.warn("{委托} 回报：" + pOrder.getStatusMsg());
+        //CTP的报单号一致性维护需要基于frontID, sessionID, orderID三个字段
         // 无法获取账户信息,使用userId作为账户ID
         String accountCode = userID;
         //DirectionEnum direction = CtpConstant.directionMapReverse.getOrDefault(pOrder.getDirection(), DirectionEnum.UNKNOWN_DIRECTION);
@@ -774,6 +780,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
      */
     @Override
     public void OnRtnTrade(CThostFtdcTradeField pTrade) {
+        logger.warn("{成交} 回报：成交数量为" + pTrade.getVolume());
         System.out.println("成交");
     }
 
@@ -789,5 +796,61 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             vtOrderData.setVtOrderID(gatewayName  + orderRef);
         }
         logger.error("{}交易接口发单错误回报（交易所） 错误ID:{},错误信息:{}", logInfo, pRspInfo.getErrorID(), pRspInfo.getErrorMsg());
+    }
+
+    /**
+     * @Description 撤单   //  vtOrderData    FrontID + SessionID + OrderRef
+     * @author gt_vv
+     * @date 2020/1/2
+     * @param cancelOrderReq
+     * @return void
+     */
+    public boolean cancelOrder(VtCancelOrderReq cancelOrderReq){
+        if (tdApi == null) {
+            logger.warn("{}交易接口尚未初始化,无法撤单", logInfo);
+            return false;
+        }
+
+        if (!loginStatus) {
+            logger.warn("{}交易接口尚未登录,无法撤单", logInfo);
+            return false;
+        }
+        if (StringUtils.isBlank(cancelOrderReq.getOrderID())) {
+            logger.error("{}参数为空,无法撤单", logInfo);
+            return false;
+        }
+        try{
+            CThostFtdcInputOrderActionField cThostFtdcInputOrderActionField = new CThostFtdcInputOrderActionField();
+            cThostFtdcInputOrderActionField.setBrokerID(brokerID);
+            cThostFtdcInputOrderActionField.setUserID(userID);
+            cThostFtdcInputOrderActionField.setInvestorID(userID);
+            cThostFtdcInputOrderActionField.setSessionID(Integer.parseInt(cancelOrderReq.getSessionID().trim()));
+            cThostFtdcInputOrderActionField.setFrontID(Integer.parseInt(cancelOrderReq.getFrontID().trim()));
+            cThostFtdcInputOrderActionField.setOrderRef(cancelOrderReq.getOrderID());
+            // 该字段是枚举值，有删除和修改两种，目前只支持删除，即撤单。
+            cThostFtdcInputOrderActionField.setActionFlag(thosttradeapiConstants.THOST_FTDC_AF_Delete);
+            reqID++;
+            tdApi.ReqOrderAction(cThostFtdcInputOrderActionField,reqID);
+        }catch (Throwable t){
+            logger.error("{}撤单异常", logInfo, t);
+            return false;
+        }
+        return true;
+    }
+
+
+    // 撤单错误回报（柜台）
+    @Override
+    public void OnRspOrderAction(CThostFtdcInputOrderActionField pInputOrderAction, CThostFtdcRspInfoField pRspInfo, int nRequestID, boolean bIsLast) {
+        if (pRspInfo != null) {
+            logger.error("{}交易接口撤单错误回报(柜台) 错误ID:{},错误信息:{}", logInfo, pRspInfo.getErrorID(), pRspInfo.getErrorMsg());
+            VtErrorData vtErrorData = new VtErrorData();
+            vtErrorData.setErrorID(String.valueOf(pRspInfo.getErrorID()));
+            vtErrorData.setErrorMsg(pRspInfo.getErrorMsg());
+
+        } else {
+            logger.error("{}处理交易接口撤单错误回报(柜台)错误,无有效信息", logInfo);
+
+        }
     }
 }

@@ -2,10 +2,7 @@ package com.nbplus.vnpy.gateway.ctpGateway;
 
 
 import com.nbplus.vnpy.event.EventEngine;
-import com.nbplus.vnpy.trader.VtConstant;
-import com.nbplus.vnpy.trader.VtGateway;
-import com.nbplus.vnpy.trader.VtOrderReq;
-import com.nbplus.vnpy.trader.VtSubscribeReq;
+import com.nbplus.vnpy.trader.*;
 
 /**
  * @Description   ctp的接口 实例化接口
@@ -103,10 +100,22 @@ public class CtpGateway extends VtGateway {
         this.mdSpi.subscribe(subscribeReq);
     }
 
+    //退定行情
+    @Override
+    public void unsubscribe(String symbol){
+        this.mdSpi.unsubscribe(symbol);
+    }
+
     //报单
     @Override
     public void sendOrder(VtOrderReq orderReq) {
         this.tdSpi.submitOrder(orderReq);
+    }
+
+    //撤单
+    @Override
+    public void cancelOrder(VtCancelOrderReq cancelOrderReq){
+        this.tdSpi.cancelOrder(cancelOrderReq);
     }
 
     //持仓
@@ -114,6 +123,7 @@ public class CtpGateway extends VtGateway {
     public void qryPosition() {
         this.tdSpi.queryPosition();
     }
+
 
     /**
      * @Description  测试main方法
