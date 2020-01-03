@@ -2,7 +2,8 @@
 
 #### 介绍
 java版本期货程序化交易系统，包括行情服务，交易服务会逐步完善，CTP版本上期技术官网下载6.3.15 穿透式，
-目前项目无架构设计，只针对ctp进行封装调用，实现基本交易，以及行情，无对外提供接口，
+目前项目无架构设计，只针对ctp进行封装调用，实现基本交易，以及行情。
+目前对CTP封装有：行情的订阅，退定，交易接口的账户信息，持仓，报单，撤单，基础合约的获取
 
 #### 软件架构
 封装 CTP API 编译成java可调用，用java代码封装mdApi(行情服务Api)，td（交易服务Api）。
@@ -19,12 +20,20 @@ CTP系统架构图：
 #### 使用说明
 
 1.   //资源目录library.path
-        System.out.println(System.getProperty("java.library.path"));  查看
+
+```
+System.out.println(System.getProperty("java.library.path")); //查看library.path
+```
      引入 动态库 会报错，可在环境 变量更改，或者项目启动时的 VM options 设置java.library.path
 2.  7-24 小时行情服务器，早上  周末关机不运行 tcp://180.168.146.187:10131       7-24 模拟环境地址      
 
-    若服务器地址填错项目启动会报错 RuntimeError:Invalid location in line 44 of file ..\..\source\network\ServiceName.cpp
-    jvm 会崩溃
+    若服务器地址填错项目启动会报错 
+
+```
+RuntimeError:Invalid location in line 44 of file ..\..\source\network\ServiceName.cpp //jvm 会崩溃
+
+```
+
 3.  可运行gateway--ctpGateway--CtpGateway.java中的main方法进行测试（注意，请注释本类的第54行代码，如果使用springboot启动类则不需要更改）。
 
 ```
@@ -38,11 +47,16 @@ eventEngine.start();//测试main方法所需注释，sping boot启动，不须�
 ```java
 server.port=8088
 ```
-5.接口封装位置
+5.封装位置
 
 ```
-javaCtp\XR_Vnpy\src\main\java\com\nbplus\vnpy\rest
+接口封装：javaCtp\XR_Vnpy\src\main\java\com\nbplus\vnpy\rest
+单例模式CTP：javaCtp\XR_Vnpy\src\main\java\com\nbplus\vnpy\gateway\ctpGateway
+事件引擎：javaCtp\XR_Vnpy\src\main\java\com\nbplus\vnpy\event
+封装接口数据返回类：javaCtp\XR_Vnpy\src\main\java\com\nbplus\vnpy\common\msg
+CTP合约，行情等实体：javaCtp\XR_Vnpy\src\main\java\com\nbplus\vnpy\trader
 ```
+
 调用步骤  127.0.0.1:8088/javactp/con  连接ctp后其他接口才可正常工作。
 
 
@@ -52,6 +66,7 @@ javaCtp\XR_Vnpy\src\main\java\com\nbplus\vnpy\rest
 gt_vv
 
 ### 项目支持
+
 1.有问题提issues，会持续更新项目。
 2.作者QQ：754992236 可以联系探讨交流。
 3.欢迎start。
