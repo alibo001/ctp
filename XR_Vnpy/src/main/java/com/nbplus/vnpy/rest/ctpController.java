@@ -61,14 +61,14 @@ public class ctpController {
     @PostMapping("/order")
     public void order(){
         VtOrderReq vtOrderReq = new VtOrderReq();
-        vtOrderReq.setDirection("1");
-        vtOrderReq.setSymbol("MA001");
-        vtOrderReq.setExchange("CZCE");
-        vtOrderReq.setVtSymbol("MA001.CZCE");
+        vtOrderReq.setDirection("2");
+        vtOrderReq.setSymbol("fu2005");
+        vtOrderReq.setExchange("SHFE");
+        vtOrderReq.setVtSymbol("fu2005.SHFE");
         vtOrderReq.setVolume(1);
         //THOST_FTDC_OPT_LimitPrice（限价）和THOST_FTDC_OPT_AnyPrice（市价）
         //vtOrderReq.setPriceType("FAK");
-        vtOrderReq.setPrice(2088);
+        vtOrderReq.setPrice(2270);
         ctpGateway.sendOrder(vtOrderReq);
     }
 
@@ -109,5 +109,27 @@ public class ctpController {
     }
 
 
+    /**
+     * @Description 查询账户信息   // 循环查询 ---且主动  ctp内无实时推送线程
+     * @author gt_vv
+     * @date 2020/1/3
+     * @return
+     */
+    @PostMapping("qryAccount")
+    public void qryAccount(){
+        ctpGateway.qryAccount();
+    }
+
+    /**
+     * @Description  查询基础合约
+     * @author gt_vv
+     * @date 2020/1/3
+     * @param
+     * @return void
+     */
+    @PostMapping("qryContract")
+    public void qryContract(){
+        ctpGateway.qryContract();
+    }
 
 }

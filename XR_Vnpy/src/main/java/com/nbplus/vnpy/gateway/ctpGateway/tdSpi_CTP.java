@@ -3,18 +3,13 @@ package com.nbplus.vnpy.gateway.ctpGateway;
 import com.nbplus.vnpy.common.utils.Text;
 import com.nbplus.vnpy.trader.*;
 import ctp.thosttraderapi.*;
-import lombok.experimental.var;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-
-import javax.sound.midi.Instrument;
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+
 
 /**
  * @Description
@@ -285,6 +280,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         }
     }
 
+
     /**
      * @param pSettlementInfoConfirm
      * @param pRspInfo
@@ -313,15 +309,31 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             logger.warn("{}交易接口开始查询投资者信息", logInfo);
             CThostFtdcQryInvestorField pQryInvestor = new CThostFtdcQryInvestorField();
             pQryInvestor.setBrokerID(brokerID);
+            pQryInvestor.setInvestorID(userID);
             reqID++;
             //查询合约
-            int i = tdApi.ReqQryInvestor( pQryInvestor, reqID);
-            logger.warn("{}API投资者结算API状态返回：" + i,logInfo);
-            pQryInvestor.setInvestorID(userID);
+            //int i = tdApi.ReqQryInvestor( pQryInvestor, reqID);
+            //logger.warn("{}API投资者结算API状态返回：" + i,logInfo);
         } catch (Throwable t) {
             logger.error("{}处理结算单确认回报错误", logInfo, t);
             //ctpGatewayImpl.disconnect();
         }
+    }
+
+    /**
+     * @Description  基础合约查询
+     * @author gt_vv
+     * @date 2020/1/3
+     * @param
+     * @return void
+     */
+    public void qryContract(){
+        CThostFtdcQryInvestorField pQryInvestor = new CThostFtdcQryInvestorField();
+        pQryInvestor.setBrokerID(brokerID);
+        pQryInvestor.setInvestorID(userID);
+        reqID++;
+        //查询合约
+        tdApi.ReqQryInvestor( pQryInvestor, reqID);
     }
 
 
@@ -375,9 +387,10 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             accountData.setPositionProfit(pTradingAccount.getPositionProfit());
             accountData.setPreBalance(pTradingAccount.getPreBalance());
             accountData.setBalance(pTradingAccount.getBalance());
-            System.out.println(currency);
-            System.out.println(accountData);
-            // this.gateway.
+            //System.out.println(currency);
+            System.out.println("账户资金信息："+accountData);
+            //推送事件引擎
+            this.gateway.onAccount(accountData);
         } catch (Throwable t) {
             logger.error("{}处理查询账户回报异常", logInfo, t);
             //ctpGatewayImpl.disconnect();
@@ -435,7 +448,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     }
 
     /**
-     * @Description   查询合约回报
+     * @Description   查询基础合约回报
      * @author gt_vv
      * @date 2019/12/13
      * @param pInstrument
@@ -490,7 +503,6 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
 
         // 缓存合约代码和交易所映射  ---- 全局映射关系
         CtpGlobal.symbolExchangeDict.put(vtContractData.getSymbol(), vtContractData.getExchange());
-        this.queryPosition();
         // 推送
         this.gateway.onContract(vtContractData);
         System.out.println(vtContractData);
@@ -500,6 +512,13 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
         }
     }
 
+    /**
+     * @Description  查询持仓
+     * @author gt_vv
+     * @date 2020/1/3
+     * @param
+     * @return void
+     */
     public void queryPosition() {
         if (tdApi == null) {
             logger.warn("{}交易接口尚未初始化,无法查询持仓", logInfo);
@@ -635,6 +654,7 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
              */
             cThostFtdcInputOrderField.setCombOffsetFlag(String.valueOf(thosttradeapiConstants.THOST_FTDC_OF_Open));
             //报单请求编号  此编号为递增
+            System.out.println(orderRef);
             cThostFtdcInputOrderField.setOrderRef(Integer.toString(orderRef));
             //用户ID
             cThostFtdcInputOrderField.setInvestorID(userID);
@@ -783,6 +803,12 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
     @Override
     public void OnRtnTrade(CThostFtdcTradeField pTrade) {
         logger.warn("{成交} 回报：成交数量为" + pTrade.getVolume());
+        VtTradeData vtTradeData = new VtTradeData();
+        vtTradeData.setSymbol(pTrade.getInstrumentID());
+        vtTradeData.setExchange(pTrade.getExchangeID());
+        vtTradeData.setOrderID(pTrade.getOrderRef());
+        vtTradeData.setVtSymbol(pTrade.getInstrumentID()+"."+pTrade.getExchangeID());
+        this.gateway.onTrade(vtTradeData);
         System.out.println("成交");
     }
 
@@ -826,9 +852,11 @@ public class tdSpi_CTP extends CThostFtdcTraderSpi {
             cThostFtdcInputOrderActionField.setBrokerID(brokerID);
             cThostFtdcInputOrderActionField.setUserID(userID);
             cThostFtdcInputOrderActionField.setInvestorID(userID);
+            cThostFtdcInputOrderActionField.setInstrumentID(cancelOrderReq.getSymbol());
             cThostFtdcInputOrderActionField.setSessionID(Integer.parseInt(cancelOrderReq.getSessionID().trim()));
             cThostFtdcInputOrderActionField.setFrontID(Integer.parseInt(cancelOrderReq.getFrontID().trim()));
             cThostFtdcInputOrderActionField.setOrderRef(cancelOrderReq.getOrderID());
+            cThostFtdcInputOrderActionField.setExchangeID(cancelOrderReq.getExchange());
             // 该字段是枚举值，有删除和修改两种，目前只支持删除，即撤单。
             cThostFtdcInputOrderActionField.setActionFlag(thosttradeapiConstants.THOST_FTDC_AF_Delete);
             reqID++;

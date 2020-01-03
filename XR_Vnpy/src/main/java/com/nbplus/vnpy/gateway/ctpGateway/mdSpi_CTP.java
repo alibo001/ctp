@@ -214,14 +214,6 @@ public class mdSpi_CTP extends CThostFtdcMdSpi {
                 //更新交易日
                 tradingDay = pRspUserLogin.getTradingDay();
                 logger.warn("{}行情接口获取到的交易日为{}", logInfo, tradingDay);
-               /* VtSubscribeReq vtSubscribeReq = new VtSubscribeReq();
-                vtSubscribeReq.setSymbol("MA2001");
-                subscribedSymbols.add(vtSubscribeReq);
-                if (!subscribedSymbols.isEmpty()) {
-                    //String[] symbolArray = subscribedSymbols.toArray(new String[subscribedSymbols.size()]);
-                    String [] symbolArray = {"MA001"};//subscribedSymbols.size()
-                    mdApi.SubscribeMarketData(symbolArray, 1);
-                }*/
             } else {
                 logger.warn("{}行情接口登录回报错误 错误ID:{},错误信息:{}", logInfo, pRspInfo.getErrorID(), pRspInfo.getErrorMsg());
             }

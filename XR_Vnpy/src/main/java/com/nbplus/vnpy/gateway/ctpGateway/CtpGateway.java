@@ -118,10 +118,22 @@ public class CtpGateway extends VtGateway {
         this.tdSpi.cancelOrder(cancelOrderReq);
     }
 
+    //账户信息
+    @Override
+    public void qryAccount() {
+        this.tdSpi.queryAccount();
+    }
+
     //持仓
     @Override
     public void qryPosition() {
         this.tdSpi.queryPosition();
+    }
+
+    //查询基础合约
+    @Override
+    public void qryContract() {
+        this.tdSpi.qryContract();
     }
 
 

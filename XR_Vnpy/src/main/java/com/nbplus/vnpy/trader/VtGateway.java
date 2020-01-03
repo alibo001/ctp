@@ -141,16 +141,20 @@ public abstract class VtGateway {
     // 发单
     abstract public void sendOrder(VtOrderReq orderReq);
 
+    //退定行情
     abstract public void unsubscribe(String symbol);
     
     // 撤单
     abstract public void cancelOrder(VtCancelOrderReq cancelOrderReq);
 
     // 查询账户资金
-    //abstract public void qryAccount();
+    abstract public void qryAccount();
     
     // 查询持仓
     abstract public void qryPosition();
+
+    //查询合约
+    abstract public void qryContract();
     
     // 查询历史
     //abstract public void qryHistory(VtHistoryReq historyReq);
