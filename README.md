@@ -25,22 +25,33 @@ CTP系统架构图：
 
     若服务器地址填错项目启动会报错 RuntimeError:Invalid location in line 44 of file ..\..\source\network\ServiceName.cpp
     jvm 会崩溃
-3.  可运行gateway--ctpGateway--CtpGateway.java中的main方法进行测试
-    可运行event--EventEngine.java测试事件引擎
+3.  可运行gateway--ctpGateway--CtpGateway.java中的main方法进行测试（注意，请注释本类的第54行代码，如果使用springboot启动类则不需要更改）。
+
+```
+eventEngine.start();//测试main方法所需注释，sping boot启动，不须此步骤。
+```
+
+    可运行event--EventEngine.java测试事件引擎。
+
+4.端口
+
+```java
+server.port=8088
+```
+5.接口封装位置
+
+```
+javaCtp\XR_Vnpy\src\main\java\com\nbplus\vnpy\rest
+```
+调用步骤  127.0.0.1:8088/javactp/con  连接ctp后其他接口才可正常工作。
+
+
+
 
 #### 参与贡献
+gt_vv
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 码云特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5.  码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+### 项目支持
+1.有问题提issues，会持续更新项目。
+2.作者QQ：754992236 可以联系探讨交流。
+3.欢迎start。
